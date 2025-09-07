@@ -1,0 +1,507 @@
+<!doctype html>
+<html lang="ja">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
+  <meta name="theme-color" content="#FFE5EC" />
+  <title>陽キャ・陰キャ診断｜Kawaii Meter</title>
+  <style>
+    :root{
+      --bg:#FFF7FA; --card:#FFFFFF; --ink:#333; --muted:#666;
+      --accent:#FF8AB3; --accent-2:#A0D8F1; --accent-3:#C5EBAA; --accent-4:#FCDDEC;
+      --shadow:0 6px 24px rgba(0,0,0,.06), 0 2px 8px rgba(0,0,0,.06);
+      --radius:18px; --radius-lg:28px;
+    }
+    *{box-sizing:border-box}
+    html,body{height:100%}
+    body{
+      margin:0; font-family: system-ui, -apple-system, "Hiragino Sans", "Noto Sans JP", "Yu Gothic", "Segoe UI", sans-serif;
+      background:
+        radial-gradient(1200px 600px at 0% -10%, #FFF0F6 10%, transparent 60%),
+        radial-gradient(900px 500px at 100% 0%, #F3FAFF 10%, transparent 60%),
+        var(--bg);
+      color:var(--ink); -webkit-font-smoothing:antialiased; -moz-osx-font-smoothing:grayscale;
+      line-height:1.65;
+    }
+    .wrap{max-width:880px;margin:0 auto;padding:18px 16px 28px}
+    header{display:flex;align-items:center;gap:10px;padding:10px 6px 14px;}
+    .brand{display:flex;align-items:center;gap:10px;font-weight:800;font-size:20px;letter-spacing:.02em;}
+    .brand-badge{width:40px;height:40px;border-radius:12px;background:linear-gradient(135deg,var(--accent),#FFDDEB);
+      display:grid;place-items:center;box-shadow:var(--shadow)}
+    .brand-badge span{font-size:22px}
+    .sub{color:var(--muted);font-size:13px;margin-top:-4px}
+    .card{background:var(--card);border-radius:var(--radius-lg);box-shadow:var(--shadow);padding:18px;}
+    .screen{display:none}.screen.active{display:block}
+
+    .hero{display:grid;gap:10px;justify-items:center;text-align:center;padding:6px 8px 14px;}
+    .hero h1{margin:8px 0 0;font-size:24px}
+    .hero p{margin:4px 0;color:var(--muted)}
+    .start-art{width:200px;height:200px;border-radius:50%;
+      background:conic-gradient(from 0deg,#FFD3E1, #E8F8FF, #E9FFD8, #FFD3E1);
+      filter:saturate(1.1);display:grid;place-items:center;position:relative;overflow:hidden;box-shadow:var(--shadow)}
+    .float{position:absolute;animation:float 6s ease-in-out infinite;opacity:.9}
+    .float.s1{top:8%;left:10%;animation-delay:.2s}
+    .float.s2{bottom:8%;right:6%;animation-delay:1.2s}
+    .float.s3{top:14%;right:22%;animation-delay:2.2s}
+    @keyframes float{0%,100%{transform:translateY(0)}50%{transform:translateY(8px)}}
+    .btn{appearance:none;border:0;border-radius:16px;padding:14px 18px;
+      font-weight:700;letter-spacing:.03em;cursor:pointer;transition:.2s transform,.2s box-shadow;
+      background:linear-gradient(180deg,var(--accent),#FFA6C8);color:#fff;box-shadow:var(--shadow);font-size:16px}
+    .btn:active{transform:translateY(1px)}
+    .btn.ghost{background:#fff;color:var(--ink);border:2px solid #eee}
+
+    /* Quiz */
+    .progress{height:12px;background:#F6F7FB;border-radius:999px;overflow:hidden;position:relative;margin:6px 2px 18px}
+    .bar{height:100%;width:0;background:linear-gradient(90deg,#FFC2D9,#B7E6FF,#D8FFB2);transition:width .4s ease;border-radius:999px}
+    .progress .hearts{position:absolute;inset:0;display:flex;gap:2px;justify-content:space-between;padding:0 4px;opacity:.75}
+    .progress .hearts span{font-size:11px;line-height:12px}
+    .qhead{display:flex;align-items:center;justify-content:space-between;gap:10px;margin:4px 0 10px}
+    .qnum{font-weight:800;background:#FFF0F6;color:#C2185B;border-radius:999px;padding:4px 10px}
+    .qtxt{font-size:18px;font-weight:700}
+    .options{display:grid;grid-template-columns:1fr;gap:10px;margin:12px 0}
+    @media(min-width:560px){.options{grid-template-columns:repeat(5,1fr)}}
+    .opt{border:2px solid #F0F0F0;border-radius:14px;padding:14px 10px;text-align:center;cursor:pointer;user-select:none;
+      display:grid;gap:6px;align-content:center;min-height:72px;background:#fff;transition:border-color .12s, box-shadow .12s, transform .08s}
+    .opt:active{transform:scale(.98)}
+    .opt .emo{font-size:22px}
+    .opt .lbl{font-size:13px;color:#444}
+    input[type=radio]{position:absolute;opacity:0;pointer-events:none}
+    .selected{border-color:var(--accent);box-shadow:0 0 0 4px #FFE5EF}
+
+    /* Result */
+    .result-top{display:grid;gap:14px;justify-items:center;text-align:center}
+    .meter{width:180px;height:180px;border-radius:50%;
+      background:conic-gradient(#FF85B3 calc(var(--pct)*1%), #F3F3F3 0);
+      position:relative;display:grid;place-items:center;box-shadow:var(--shadow)}
+    .meter:after{content:"";position:absolute;inset:12px;border-radius:50%;background:#fff;box-shadow:inset 0 0 0 6px #FFF3F8;}
+    .meter .val{position:relative;font-weight:800;font-size:28px;z-index:1}
+    .title{font-weight:800;font-size:18px;background:#FFF0F6;padding:6px 10px;border-radius:12px;display:inline-block}
+    .two-cols{display:grid;gap:16px;margin-top:12px}
+    @media(min-width:720px){.two-cols{grid-template-columns: 1.1fr .9fr;align-items:start}}
+    .speech{background:linear-gradient(#FFFFFF,#FFF7FB);border:2px dashed #FFE0EF;border-radius:18px;padding:14px 14px 18px}
+    .char-card{background:#fff;border-radius:18px;padding:14px;box-shadow:var(--shadow);display:grid;gap:8px;justify-items:center}
+    .share{display:flex;gap:8px;flex-wrap:wrap;justify-content:center;margin-top:10px}
+    .muted{color:var(--muted);font-size:12px}
+
+    .answers{margin-top:14px;font-size:14px;color:#444}
+    .answers details{background:#FAFBFE;border-radius:12px;padding:10px;border:1px solid #EEF1F7}
+    .answers summary{cursor:pointer;font-weight:700}
+    .answers ol{margin:8px 0 0 18px}
+    .answers li{margin:4px 0}
+
+    @media(prefers-reduced-motion: reduce){
+      .float{animation:none}
+      .btn{transition:none}
+      .bar{transition:none}
+    }
+    footer{margin-top:18px;color:var(--muted);font-size:12px;text-align:center}
+    a{color:#1D6AE5;text-decoration:none}
+  </style>
+</head>
+<body>
+  <div class="wrap">
+    <header>
+      <div class="brand-badge" aria-hidden="true"><span>🌈</span></div>
+      <div>
+        <div class="brand">Kawaii Meter｜陽キャ・陰キャ診断</div>
+        <div class="sub">高校生が遊びで楽しむライト診断（全12問・所要1分）</div>
+      </div>
+    </header>
+
+    <!-- START -->
+    <section id="screen-start" class="screen active">
+      <div class="card hero">
+        <div class="start-art" aria-hidden="true">
+          <div class="float s1">🌟</div>
+          <div class="float s2">🍓</div>
+          <div class="float s3">💫</div>
+          <!-- マスコット -->
+          <svg width="120" height="120" viewBox="0 0 120 120" role="img" aria-label="かわいいマスコット">
+            <defs><radialGradient id="g0" cx="50%" cy="45%" r="60%">
+              <stop offset="0%" stop-color="#FFF" /><stop offset="100%" stop-color="#FFD6E6" />
+            </radialGradient></defs>
+            <circle cx="60" cy="62" r="44" fill="url(#g0)" stroke="#FFB6CF" stroke-width="2"/>
+            <circle cx="43" cy="58" r="5" fill="#333"/><circle cx="77" cy="58" r="5" fill="#333"/>
+            <path d="M45 76 Q60 86 75 76" fill="none" stroke="#333" stroke-width="3" stroke-linecap="round"/>
+            <circle cx="34" cy="66" r="6" fill="#FFC3D7" /><circle cx="86" cy="66" r="6" fill="#FFC3D7" />
+            <polygon points="60,21 65,32 77,33 67,40 70,52 60,45 50,52 53,40 43,33 55,32" fill="#FFEE99" />
+          </svg>
+        </div>
+        <h1>あなたの「陽キャ・陰キャ度」を<br/>ふんわり診断</h1>
+        <p>※ あくまでエンタメ用。結果で人を決めつけないやさしさを。</p>
+        <div class="actions">
+          <button class="btn" id="btnStart">スタートする</button>
+          <button class="btn ghost" id="btnAbout">診断について</button>
+        </div>
+      </div>
+    </section>
+
+    <!-- QUIZ -->
+    <section id="screen-quiz" class="screen">
+      <div class="card">
+        <div class="progress" aria-hidden="true">
+          <div class="bar" id="bar" style="width:0%"></div>
+          <div class="hearts" id="hearts" aria-hidden="true"></div>
+        </div>
+        <div class="qhead">
+          <div class="qnum" id="qnum">Q1/12</div>
+          <div class="muted" id="assist" aria-live="polite"></div>
+        </div>
+        <div class="qtxt" id="qtxt">質問テキスト</div>
+        <form id="form" class="options" aria-describedby="assist"><!-- options injected --></form>
+        <!-- ※ 「つぎへ／もどる」ボタンは削除。タップで即遷移 -->
+      </div>
+    </section>
+
+    <!-- RESULT -->
+    <section id="screen-result" class="screen">
+      <div class="card">
+        <div class="result-top">
+          <div class="meter" id="meter" style="--pct:50"><div class="val" id="levelVal">Lv.5</div></div>
+          <div>
+            <div class="title" id="title20">タイトル</div>
+            <div class="muted" id="subline">陽キャ度 <b id="yang">5</b>／10・陰キャ度 <b id="yin">6</b>／10</div>
+          </div>
+        </div>
+
+        <div class="two-cols">
+          <div class="speech" id="comment"><!-- コメント --></div>
+          <div class="char-card">
+            <div id="character" aria-label="あなたのキャラクター"></div>
+            <div class="share">
+              <button class="btn" id="btnShare">結果をシェア</button>
+              <button class="btn ghost" id="btnCopy">リンクをコピー</button>
+              <button class="btn" id="btnRetry">もう一回やる</button>
+            </div>
+          </div>
+        </div>
+
+        <div class="answers">
+          <details>
+            <summary>あなたの回答（タップで開く）</summary>
+            <ol id="answerList"></ol>
+          </details>
+        </div>
+      </div>
+    </section>
+
+    <footer><p>© 2025 Kawaii Meter – この診断は遊び目的です。個人情報は収集しません。</p></footer>
+  </div>
+
+
+<script>
+"use strict";
+
+/* --- スコア調整ダイヤル（極端寄りプリセット） --- */
+const SCORING = {
+  GAMMA: 0.80,  // 0.60〜1.00：小さいほど両端が出やすい（0.8推奨）
+  EXTREME_BONUS: 0.50, // 0〜1.0：最端の回答（0/4）に加点
+  // レベル境界（-1〜1のスコアを10段階に分割）。中央を細く、端を広く。
+  CUTS: [-1, -0.28, -0.22, -0.17, -0.12, -0.07, 0.07, 0.12, 0.17, 0.22, 1]
+  //            Lv1   Lv2    Lv3    Lv4    Lv5    Lv6    Lv7    Lv8    Lv9   Lv10
+};
+
+/* ---------- データ定義（12問・自動進行） ---------- */
+const QUESTIONS = [
+  { text:"休み時間は人が集まる場所に自然といる", reverse:false },
+  { text:"初対面と話すのはワクワクする", reverse:false },
+  { text:"SNSで自分の近況をよく発信する", reverse:false },
+  { text:"文化祭や体育祭は全力で楽しむ", reverse:false },
+  { text:"授業で発言するのはそんなに苦じゃない", reverse:false },
+  { text:"ひとり時間がいちばん落ち着く", reverse:true  },
+  { text:"音が大きい場所は少しつかれやすい", reverse:true  },
+  { text:"予定がないとちょっとそわそわする", reverse:false },
+  { text:"友だちの友だちともすぐ仲よくなる", reverse:false },
+  { text:"グループの中心より裏方が落ち着く", reverse:true  },
+  { text:"初めての場でも自分からあいさつできる", reverse:false },
+  { text:"長いひとり時間でも案外たいくつしない", reverse:true  },
+];
+
+/* タイトル：10文字程度、かな/カナ/漢字をバランス */
+const TITLES = [
+  "しずかめ内省ガイド",     // Lv1
+  "ひそやか参謀モード",     // Lv2
+  "おちつきミドルタイプ",   // Lv3
+  "静と動のバランサー",     // Lv4
+  "ちょうどいい社交派",     // Lv5
+  "にこやかトーク派",       // Lv6
+  "ムードづくり名人級",     // Lv7
+  "フェス気質の盛上げ手",   // Lv8
+  "笑顔発電トップ層",       // Lv9
+  "祝祭センターリーダー",   // Lv10
+];
+
+/* コメント：漢字率ひかえめ・やわらか口調（約200字） */
+const COMMENTS = {
+  1: "しずかにようすを見るタイプ。にぎやかな場所より、ひとり時間でエネルギーをためるほうが合います。少人数だとことばがやさしく届くので、無理に主役にならなくて大丈夫。気が合う人にだけ、扉をちょっとひらく。ていねいな観察とまじめさは、チームの安心をつくる力です。静けさはあなたのつよみ。",
+  2: "控えめなコミュ力で場をささえる参謀タイプ。目立つより、準備や聞き役がうまい人。小さな輪からゆっくり広げれば、むりなく友だちがふえます。週に一回だけ、あいさつや一言のチャレンジを決めると自信が育ちます。小声でもちゃんと届く。あなたの言葉は空気をやわらかくします。",
+  3: "落ち着いたミドル。よく見て、考えてから話すから、ことばがやさしく正確。まとめ役や仕上げで光ります。つかれた日はやすみ、元気な日は小さな挑戦。ゆるいリズムが魅力を高めます。相手のよさを引き出す質問が得意。ときどき最初のひと声を。あなたの一歩が場をあたためます。",
+  4: "静と動のきりかえが上手。出るときは出て、引くときは引けるスマートさ。文化祭では裏方でも主役級のはたらき。ふだんはおだやか、仲間内ではよく笑う。自分のペースをたいせつにしながら、関係を少しずつ広げよう。たまに小さな冒険を設計すると、うれしい偶然がふえます。",
+  5: "ほどよい社交温度。人と話すのもひとり時間も、どちらも楽しめるバランサー。場の空気を読み、笑いのスイッチも持っています。好奇心が動くほうへ一歩ずつ。予定に少しよゆうをつくると、交流も集中も長もちします。ときに主役、ときに相棒。どちらのあなたも、みんなに愛されます。",
+  6: "前むきコミュ力。初対面でも笑顔で話をはじめられるタイプ。ノリだけじゃなく、相手への気づかいもできるのがつよみ。予定をつめすぎず、休む時間も入れると安定します。あなたの一言は今日のだれかの勇気。自然体の明るさをたいせつに。その笑顔は周りへするっと広がります。",
+  7: "ムードづくりが得意。沈黙も笑いも、やわらかくつなげられる人。輪を広げつつ、一人ひとりの気持ちも見られます。休む時はしっかり休み、走る時は軽やかに。盛り上げも聞き役もできるのが強み。みんなの輝きを引き出すプロデュース力で、教室をあったかくしてくださいね。",
+  8: "イベントに強いエンジンタイプ。企画の初速と巻きこみ力が光ります。楽しさの中でも、だれも置いていかない気づかいがあると最強。声の大きさより、安心のつくり方があなたの真価です。休む予定もいっしょに設計して、楽しさを長もちさせよう。自分にもやさしく、みんなに太陽。",
+  9: "学年クラスのムードメーカー。あなたがいると空気がパッと明るくなります。人と人をつなぎ、困っている子も見つけられる。行動と笑顔で前むきの波を生む力は宝もの。静かな時間を少し持つと、さらにパワーが澄みます。リーダーシップは分け合うほど強くなる。その気配りが大きな信頼をつくります。",
+  10:"超ハイテンションのフェス神タイプ。クラスを一瞬でおまつりに変える推進力。安全と多様性への配慮がそなわると無敵です。ときどき静かな補給タイムを設計して、燃料をためよう。走るだけでなく、止まる勇気もリーダーの力。今日の盛り上がりも、明日のやさしさも、あなたなら両方つくれます。"
+};
+
+/* 5段階の選択肢（0〜4） */
+const CHOICES = [
+  {label:"ぜんぜん", emoji:"🌙", value:0},
+  {label:"あまり",   emoji:"🌊", value:1},
+  {label:"どちらとも", emoji:"🍀", value:2},
+  {label:"けっこう", emoji:"☀️", value:3},
+  {label:"とても",   emoji:"🎉", value:4},
+];
+
+/* ---------- 状態 ---------- */
+let current = 0;
+let transitioning = false;
+const answers = Array(QUESTIONS.length).fill(null);
+
+/* ---------- 便利関数 ---------- */
+const $ = sel => document.querySelector(sel);
+const el = (tag, attrs={}) => Object.assign(document.createElement(tag), attrs);
+
+function show(id){
+  document.querySelectorAll(".screen").forEach(s => s.classList.remove("active"));
+  $(id).classList.add("active");
+  window.scrollTo({top:0, behavior:"smooth"});
+}
+
+function updateProgress(){
+  const answered = answers.filter(a=>a!==null).length;
+  const pct = Math.round(100 * answered / QUESTIONS.length);
+  $("#bar").style.width = pct + "%";
+  $("#qnum").textContent = `Q${current+1}/${QUESTIONS.length}`;
+  // ハート（質問数ぶん）
+  const h = $("#hearts"); h.innerHTML = "";
+  for(let i=0;i<QUESTIONS.length;i++){
+    const s = el("span"); s.textContent = i < answered ? "💖" : "🤍"; h.appendChild(s);
+  }
+}
+
+function renderQuestion(){
+  const q = QUESTIONS[current];
+  $("#qtxt").textContent = q.text;
+  $("#assist").textContent = "タップすると次の質問へ";
+  const form = $("#form"); form.innerHTML = "";
+  CHOICES.forEach((c,idx)=>{
+    const id = `q${current}c${idx}`;
+    const input = el("input", {type:"radio", name:"q", id, value:String(c.value)});
+    const label = el("label", {className:"opt", htmlFor:id});
+    label.innerHTML = `<div class="emo">${c.emoji}</div><div class="lbl">${c.label}</div>`;
+    const wrap = el("div", {}); wrap.appendChild(input); wrap.appendChild(label); form.appendChild(wrap);
+
+    const choose = ()=>{
+      if(transitioning) return;
+      transitioning = true;
+      answers[current] = Number(c.value);
+      label.classList.add("selected");
+      // 軽く待ってから遷移（選択フィードバック）
+      setTimeout(()=>{
+        if(current < QUESTIONS.length - 1){
+          current++; renderQuestion(); transitioning = false;
+        }else{
+          renderResult(); show("#screen-result"); transitioning = false;
+        }
+      }, 160);
+    };
+    label.addEventListener("click", choose);
+    input.addEventListener("change", choose); // キーボード対応
+  });
+
+  // 既に選んでいたら表示反映（戻るUIは無いが共有表示時など）
+  if(answers[current] !== null){
+    const idx = CHOICES.findIndex(c=>c.value===answers[current]);
+    const lab = form.querySelectorAll(".opt")[idx];
+    if(lab) lab.classList.add("selected");
+  }
+
+  updateProgress();
+}
+
+function computeLevel(){
+  // 1) 各設問を -2..+2 に正規化（reverseは反転）
+  let oriented = [];
+  for (let i = 0; i < QUESTIONS.length; i++) {
+    const raw = (answers[i] ?? 2);               // 未回答は中立扱い
+    const norm = QUESTIONS[i].reverse ? (4 - raw) : raw; // 0..4（陽側が大きい）
+    let v = norm - 2;                            // -2..+2 に変換（0が中立）
+
+    // 2) 極端回答ボーナス（端に振り切ったら少し加点）
+    if (Math.abs(v) === 2) {
+      v += (v > 0 ? 1 : -1) * SCORING.EXTREME_BONUS;
+    }
+    oriented.push(v);
+  }
+
+  // 3) -1..+1 に正規化（ボーナスで1を超えることがあるのでクリップ）
+  const xRaw = oriented.reduce((a,b)=>a+b,0) / (2 * QUESTIONS.length);
+  const x = Math.max(-1, Math.min(1, xRaw));
+
+  // 4) 非線形変換（指数 < 1 で中心を外側へ引き伸ばす）
+  const y = Math.sign(x) * Math.pow(Math.abs(x), SCORING.GAMMA); // -1..+1
+
+  // 5) U字カーブのしきい値でレベルに割り当て
+  let level = 10;
+  for (let i = 1; i < SCORING.CUTS.length; i++) {
+    if (y <= SCORING.CUTS[i]) { level = i; break; }
+  }
+
+  // 返り値は互換のために残しています（他では level だけ使っています）
+  return {
+    sum: oriented.reduce((a,b)=>a+b,0), // 参考用（単位は -2〜+2 ベース）
+    max: 2 * QUESTIONS.length,          // 参考用
+    level
+  };
+}
+
+
+function characterSVG(level){
+  const hues = [205, 210, 190, 160, 140, 35, 20, 10, 350, 330];
+  const hue = hues[Math.max(0, Math.min(9, level-1))];
+  const base = `
+  <svg width="200" height="200" viewBox="0 0 200 200" role="img" aria-label="レベル${level}のキャラクター">
+    <defs>
+      <radialGradient id="b${level}" cx="50%" cy="45%" r="60%">
+        <stop offset="0%" stop-color="hsl(${hue},100%,98%)"/>
+        <stop offset="100%" stop-color="hsl(${hue},85%,85%)"/>
+      </radialGradient>
+      <filter id="s${level}" x="-20%" y="-20%" width="140%" height="140%">
+        <feDropShadow dx="0" dy="3" stdDeviation="3" flood-color="rgba(0,0,0,.15)"/>
+      </filter>
+    </defs>
+    <g filter="url(#s${level})">
+      <circle cx="100" cy="110" r="70" fill="url(#b${level})" stroke="hsl(${hue},70%,70%)" stroke-width="3"/>
+      <circle cx="75" cy="100" r="7" fill="#333"/>
+      <circle cx="125" cy="100" r="7" fill="#333"/>
+      <path d="M75 128 Q100 142 125 128" fill="none" stroke="#333" stroke-width="5" stroke-linecap="round"/>
+      <circle cx="62" cy="112" r="8" fill="rgba(255,105,180,.35)"/>
+      <circle cx="138" cy="112" r="8" fill="rgba(255,105,180,.35)"/>
+    </g>
+    ${accessory(level)}
+  </svg>`;
+  return base;
+
+  function accessory(lv){
+    switch(lv){
+      case 1: return book(120,155);
+      case 2: return star(50,40);
+      case 3: return headphones(100,58);
+      case 4: return bow(100,40);
+      case 5: return clover(155,70);
+      case 6: return balloon(165,40);
+      case 7: return sparkle(40,155);
+      case 8: return partyHat(100,28);
+      case 9: return crown(100,32);
+      case 10:return megaphone(162,120);
+      default:return "";
+    }
+  }
+  function book(x,y){return `<g aria-label="本"><rect x="${x-40}" y="${y-22}" rx="6" ry="6" width="80" height="44" fill="#FFF" stroke="#A6C5FF"/>
+            <line x1="${x-2}" y1="${y-22}" x2="${x-2}" y2="${y+22}" stroke="#A6C5FF" stroke-width="2"/></g>`;}
+  function star(x,y){return `<g aria-label="星" transform="translate(${x},${y})">
+    <polygon points="0,-18 6,-4 20,-4 9,4 13,18 0,9 -13,18 -9,4 -20,-4 -6,-4" fill="#FFE58F"/></g>`;}
+  function headphones(x,y){return `<g aria-label="ヘッドホン" transform="translate(${x},${y})">
+    <path d="M-40,20 a40,40 0 0 1 80,0" fill="none" stroke="#333" stroke-width="6"/>
+    <rect x="-52" y="18" width="18" height="24" rx="6" fill="#444"/>
+    <rect x="34" y="18" width="18" height="24" rx="6" fill="#444"/></g>`;}
+  function bow(x,y){return `<g aria-label="リボン" transform="translate(${x},${y})">
+    <circle r="5" fill="#FF7BAC"/><path d="M-5,0 C-20,-10 -28,-4 -30,8 C-20,0 -14,10 -5,5Z" fill="#FFA6C8"/>
+    <path d="M5,0 C20,-10 28,-4 30,8 C20,0 14,10 5,5Z" fill="#FFA6C8"/></g>`;}
+  function clover(x,y){return `<g aria-label="クローバー" transform="translate(${x},${y})">
+    <circle cx="-6" cy="-6" r="8" fill="#B9E8A0"/><circle cx="6" cy="-6" r="8" fill="#B9E8A0"/>
+    <circle cx="-6" cy="6" r="8" fill="#B9E8A0"/><circle cx="6" cy="6" r="8" fill="#B9E8A0"/>
+    <path d="M0,12 L0,24" stroke="#8BCB73" stroke-width="3"/></g>`;}
+  function balloon(x,y){return `<g aria-label="風船" transform="translate(${x},${y})">
+    <ellipse rx="12" ry="16" fill="#FFD1DC"/><path d="M0,16 L0,36" stroke="#EAA" stroke-width="2"/></g>`;}
+  function sparkle(x,y){return `<g aria-label="きらめき" transform="translate(${x},${y})">
+    <path d="M0,-14 L3,0 L0,14 L-3,0 Z" fill="#FFDDEE"/><circle r="3" fill="#FFC1D7"/></g>`;}
+  function partyHat(x,y){return `<g aria-label="パーティハット" transform="translate(${x},${y})">
+    <polygon points="0,-16 12,12 -12,12" fill="#FFEA94" stroke="#FFC94A"/>
+    <circle cx="0" cy="-18" r="4" fill="#FF9DC4"/></g>`;}
+  function crown(x,y){return `<g aria-label="クラウン" transform="translate(${x},${y})">
+    <path d="M-26,10 L-24,-8 L0,6 L24,-8 L26,10 Z" fill="#FFE085" stroke="#E3B200"/></g>`;}
+  function megaphone(x,y){return `<g aria-label="メガホン" transform="translate(${x},${y})">
+    <path d="M-22,-6 L8,-16 L8,16 L-22,6 Z" fill="#FFD2E1" stroke="#FF8BB0"/>
+    <rect x="-30" y="-6" width="8" height="12" fill="#FF8BB0"/></g>`;}
+}
+
+function renderResult(){
+  const {level} = computeLevel();
+  const pct = Math.round(100 * (level-1) / 9); // 0〜100
+  $("#meter").style.setProperty("--pct", pct);
+  $("#levelVal").textContent = `Lv.${level}`;
+  $("#title20").textContent = TITLES[level-1];
+  $("#comment").textContent = COMMENTS[level];
+  $("#yang").textContent = level;
+  $("#yin").textContent = 11 - level;
+  $("#character").innerHTML = characterSVG(level);
+
+  // 回答リスト
+  const ol = $("#answerList"); ol.innerHTML = "";
+  QUESTIONS.forEach((q,i)=>{
+    const li = el("li");
+    const a = answers[i];
+    const label = (a===null) ? "未回答" : CHOICES[a].label;
+    li.textContent = `${i+1}. ${q.text} … 「${label}」`;
+    ol.appendChild(li);
+  });
+
+  // 共有用
+  const url = new URL(location.href);
+  url.searchParams.set("lv", level);
+  history.replaceState(null, "", url.toString());
+}
+
+/* ---------- イベント ---------- */
+$("#btnStart").addEventListener("click", ()=>{
+  // 初期化して開始
+  for(let i=0;i<answers.length;i++) answers[i]=null;
+  current = 0; transitioning = false;
+  show("#screen-quiz"); renderQuestion();
+});
+$("#btnAbout").addEventListener("click", ()=>{
+  alert("この診断はエンタメ目的です。結果で人を決めつけないやさしさを。プライバシー情報は保存しません。");
+});
+
+$("#btnRetry").addEventListener("click", ()=>{
+  for(let i=0;i<answers.length;i++) answers[i]=null;
+  current=0; transitioning=false;
+  show("#screen-quiz"); renderQuestion();
+});
+
+$("#btnShare").addEventListener("click", async ()=>{
+  const {level} = computeLevel();
+  const text = `Kawaii Meterで診断！\n陽キャ度: ${level}/10\n「${TITLES[level-1]}」`;
+  const url = location.href;
+  try{
+    if(navigator.share){ await navigator.share({title:"陽キャ・陰キャ診断", text, url}); }
+    else{ await navigator.clipboard.writeText(text + "\n" + url); alert("共有API非対応のため、結果テキストをコピーしました！"); }
+  }catch(e){ /* キャンセル等 */ }
+});
+$("#btnCopy").addEventListener("click", async ()=>{
+  try{ await navigator.clipboard.writeText(location.href); alert("結果リンクをコピーしました！"); }
+  catch(e){ prompt("コピーできない場合は手動で選んでコピーしてください", location.href); }
+});
+
+/* ---------- 共有リンクで直接レベル表示 ---------- */
+(function showLevelByUrl(){
+  const lv = Number(new URL(location.href).searchParams.get("lv"));
+  if(lv>=1 && lv<=10){
+    answers.fill(2); // 表示用
+    show("#screen-result");
+    $("#meter").style.setProperty("--pct", Math.round(100*(lv-1)/9));
+    $("#levelVal").textContent = `Lv.${lv}`;
+    $("#title20").textContent = TITLES[lv-1];
+    $("#comment").textContent = COMMENTS[lv];
+    $("#yang").textContent = lv;
+    $("#yin").textContent = 11 - lv;
+    $("#character").innerHTML = characterSVG(lv);
+    $("#answerList").innerHTML = "<li>共有リンクからの表示です。診断をやり直すと回答一覧が出ます。</li>";
+  }
+})();
+</script>
+</body>
+</html>
