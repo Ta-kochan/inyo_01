@@ -1,0 +1,431 @@
+<!doctype html>
+<html lang="ja">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<meta name="theme-color" content="#F7F8FC">
+<title>毒親サイン診断｜Boundaries Checker</title>
+<style>
+:root{
+  --bg:#F7F8FC; --bg-grad:linear-gradient(180deg,#F7F8FC 0%, #F4F2F7 100%);
+  --card:#FFFFFF; --ink:#212529; --muted:#6B7280; --line:#E5E7EB;
+  --accent:#9EC5FE; --accent-2:#B7EBD3; --accent-3:#F7B8D9; --warn:#F59E0B; --danger:#EF4444;
+  --shadow:0 2px 10px rgba(17,24,39,.06),0 1px 1px rgba(17,24,39,.04);
+  --radius:12px; --radius-lg:16px;
+}
+*{box-sizing:border-box} html,body{height:100%}
+body{
+  margin:0;font-family:-apple-system,BlinkMacSystemFont,"Segoe UI","Hiragino Sans","Noto Sans JP","Yu Gothic",Meiryo,system-ui,sans-serif;
+  background:var(--bg-grad);color:var(--ink);-webkit-font-smoothing:antialiased;-moz-osx-font-smoothing:grayscale;line-height:1.65;
+}
+.wrap{max-width:920px;margin:0 auto;padding:18px 16px 28px}
+header{display:flex;align-items:center;gap:12px;padding:10px 6px 14px}
+.brand{display:flex;align-items:center;gap:10px;font-weight:800;font-size:20px;letter-spacing:.01em}
+.brand-badge{width:40px;height:40px;border-radius:10px;background:#fff;border:1px solid var(--line);display:grid;place-items:center;box-shadow:var(--shadow)}
+.brand-badge span{font-size:12px;color:#334155;font-weight:800;letter-spacing:.08em}
+.sub{color:var(--muted);font-size:13px;margin-top:-4px}
+.card{background:var(--card);border-radius:var(--radius-lg);box-shadow:var(--shadow);border:1px solid var(--line);padding:18px}
+.screen{display:none}.screen.active{display:block}
+
+.btn{appearance:none;border:1px solid var(--line);border-radius:12px;padding:12px 16px;font-weight:700;letter-spacing:.02em;cursor:pointer;
+  background:linear-gradient(180deg,#A8C5FF,var(--accent));color:#fff;transition:.15s transform,.2s box-shadow,.2s background;box-shadow:0 1px 2px rgba(17,24,39,.06);font-size:16px}
+.btn:hover{transform:translateY(-1px)} .btn:active{transform:translateY(0)}
+.btn.ghost{background:#fff;color:var(--ink);border:1px solid var(--line)}
+.copy{appearance:none;border:1px dashed var(--line);border-radius:10px;background:#fff;padding:8px 10px;cursor:pointer;color:#111827}
+
+.hero{display:grid;gap:12px;justify-items:center;text-align:center;padding:6px 8px 14px}
+.hero h1{margin:8px 0 0;font-size:22px;letter-spacing:.01em}
+.hero p{margin:2px 0;color:var(--muted)}
+.start-art{width:220px;height:220px;border-radius:50%;background:radial-gradient(60% 60% at 50% 45%, #FFFFFF 0%, #EEF3FF 65%, #EDE7F6 100%);box-shadow:var(--shadow)}
+.actions{display:flex;gap:10px;flex-wrap:wrap;justify-content:center;margin-top:10px}
+
+.toolbar{display:flex;align-items:center;justify-content:space-between;margin-bottom:8px}
+.quit{appearance:none;border:none;background:transparent;color:#374151;cursor:pointer;font-weight:700}
+.progress{height:10px;background:#F4F6FA;border:1px solid var(--line);border-radius:999px;position:relative;margin:6px 2px 18px;overflow:hidden}
+.bar{height:100%;width:0;background:linear-gradient(90deg,#BFD6FF,#CDEEDC,#F8C9DF);transition:width .35s ease;border-radius:999px}
+.progress .dots{position:absolute;inset:0;display:flex;gap:6px;justify-content:center;align-items:center;opacity:.7}
+.progress .dots span{font-size:12px;line-height:10px}
+.qhead{display:flex;align-items:center;justify-content:space-between;gap:10px;margin:4px 0 10px}
+.qnum{font-weight:800;background:#F4F6FF;color:#1F2937;border:1px solid var(--line);border-radius:999px;padding:4px 10px}
+.qtxt{font-size:18px;font-weight:700}
+.options{display:grid;grid-template-columns:1fr;gap:10px;margin:12px 0}
+@media(min-width:560px){.options{grid-template-columns:repeat(5,1fr)}}
+.opt{border:1px solid var(--line);border-radius:12px;padding:14px 10px;text-align:center;cursor:pointer;user-select:none;display:grid;gap:6px;align-content:center;min-height:68px;background:#fff;transition:border-color .12s, box-shadow .12s, transform .08s}
+.opt:active{transform:scale(.99)} .opt .emo{display:none} .opt .lbl{font-size:13px;color:#374151}
+input[type=radio]{position:absolute;opacity:0;pointer-events:none}
+.selected{border-color:var(--accent);box-shadow:0 0 0 3px rgba(158,197,254,.35)}
+
+.badge{display:inline-block;border:1px solid var(--line);background:#F4F6FF;color:#111827;border-radius:999px;padding:4px 10px;font-weight:700;font-size:12px}
+.title{font-weight:800;font-size:18px;background:#F4F6FF;padding:6px 10px;border-radius:10px;display:inline-block}
+.grid{display:grid;gap:12px}
+@media(min-width:860px){.grid{grid-template-columns:1.15fr .85fr}}
+
+.scale-box{background:#fff;border:1px solid var(--line);border-radius:12px;padding:12px;box-shadow:var(--shadow)}
+.scale-row{display:grid;grid-template-columns:160px 1fr 46px;align-items:center;gap:8px;margin:6px 0}
+.scale-name{font-size:13px;color:#374151}
+.scale-bar{height:8px;background:#F4F6FA;border:1px solid var(--line);border-radius:999px;overflow:hidden}
+.scale-bar>i{display:block;height:100%;background:#9EC5FE;width:0}
+.meter-label{display:flex;align-items:center;justify-content:space-between;font-size:13px;color:#374151}
+.meter{height:12px;background:#F4F6FA;border:1px solid var(--line);border-radius:999px;overflow:hidden;margin-bottom:6px}
+.meter>i{display:block;height:100%;background:linear-gradient(90deg,#8FB6FF,#FCD1E8);width:0}
+
+.card-list{display:grid;gap:10px;margin-top:10px}
+.card-i{background:#fff;border:1px solid var(--line);border-radius:12px;padding:12px;box-shadow:var(--shadow);display:grid;gap:6px}
+.pills{display:flex;gap:6px;flex-wrap:wrap}
+.pill{border:1px solid var(--line);border-radius:999px;padding:4px 8px;background:#FAFBFF;font-size:12px}
+.mute{color:var(--muted);font-size:12px}
+.note{color:#374151;font-size:12px}
+.answers{margin-top:14px;font-size:14px;color:#444}
+.answers details{background:#FAFBFF;border-radius:12px;padding:10px;border:1px solid var(--line)}
+.answers summary{cursor:pointer;font-weight:700}
+.answers ol{margin:8px 0 0 18px}.answers li{margin:4px 0}
+footer{margin-top:18px;color:var(--muted);font-size:12px;text-align:center}
+a{color:#1D6AE5;text-decoration:none}
+@media(prefers-reduced-motion: reduce){.btn,.bar{transition:none}}
+</style>
+</head>
+<body>
+<div class="wrap">
+  <header>
+    <div class="brand-badge"><span>BC</span></div>
+    <div>
+      <div class="brand">毒親サイン診断｜Boundaries Checker</div>
+      <div class="sub">**安全と尊厳が最優先**。やさしい言葉で“いま”を見える化（全20問・所要3〜5分）</div>
+    </div>
+  </header>
+
+  <!-- START -->
+  <section id="screen-start" class="screen active">
+    <div class="card hero">
+      <div class="start-art" aria-hidden="true"></div>
+      <h1>「なんかしんどい」を言葉に。<br>笑えるニックネームでパターン把握</h1>
+      <p>境界・操作・否定・巻き込みの4観点。キャッチーな名前で“あるある”を指差しつつ、**あなたを責めない**結果に。</p>
+      <p class="mute">※ 本ツールは自己チェック（エンタメ）。医学・法律の専門評価ではありません。危険や強い不安がある時は、**身の安全を最優先**にし、学校・自治体・支援窓口などの相談先をご利用ください。データ保存は行いません。</p>
+      <div class="actions">
+        <button class="btn" id="btnStart">診断をはじめる</button>
+        <button class="btn ghost" id="btnAbout">説明を読む</button>
+      </div>
+    </div>
+  </section>
+
+  <!-- QUIZ -->
+  <section id="screen-quiz" class="screen">
+    <div class="card">
+      <div class="toolbar">
+        <div class="mute">タップすると次へ（全20問）</div>
+        <div>
+          <button class="quit" id="btnHide" title="クイック退出（新しいタブで別ページを開く）">⏭ すぐ閉じる</button>
+          <button class="quit" id="btnQuit" title="スタートに戻る">× 閉じる</button>
+        </div>
+      </div>
+      <div class="progress" aria-hidden="true">
+        <div class="bar" id="bar" style="width:0%"></div>
+        <div class="dots" id="dots" aria-hidden="true"></div>
+      </div>
+      <div class="qhead">
+        <div class="qnum" id="qnum">Q1/20</div>
+        <div class="mute" id="assist" aria-live="polite"></div>
+      </div>
+      <div class="qtxt" id="qtxt">質問テキスト</div>
+      <form id="form" class="options" aria-describedby="assist"><!-- injected --></form>
+    </div>
+  </section>
+
+  <!-- RESULT -->
+  <section id="screen-result" class="screen">
+    <div class="card">
+      <div class="badge" id="badge">結果</div>
+      <h2 class="title" id="resTitle">タイトル</h2>
+
+      <div class="grid" style="margin-top:10px">
+        <div>
+          <div class="card-i">
+            <div id="comment" class="note"></div>
+            <div class="pills" id="steps" style="margin-top:6px"></div>
+            <div class="actions" style="justify-content:flex-start;margin-top:8px">
+              <button class="copy" id="btnCopy">結果メモをコピー</button>
+              <button class="btn ghost" id="btnRetry">もう一度やる</button>
+            </div>
+            <p class="mute" style="margin-top:8px">※ 重大な危険や体調不良がある場合は、身の安全を最優先に。信頼できる大人や相談窓口の利用を検討してください。</p>
+          </div>
+
+          <div class="card-i" id="patternBox">
+            <b>あなたに出やすい“行動パターン”（トップ3）</b>
+            <div id="patternList" class="card-list"></div>
+          </div>
+        </div>
+
+        <div class="scale-box">
+          <div class="meter-label"><span>全体サイン（0〜4）</span><b id="tVal">0.0</b></div>
+          <div class="meter"><i id="tBar"></i></div>
+
+          <div class="mute" style="margin-top:10px">4つの観点（0〜4）</div>
+          <div class="scale-row"><div class="scale-name">境界（プライバシー）</div><div class="scale-bar"><i id="sA"></i></div><div id="vA">0.0</div></div>
+          <div class="scale-row"><div class="scale-name">操作（脅し/罪悪感）</div><div class="scale-bar"><i id="sB"></i></div><div id="vB">0.0</div></div>
+          <div class="scale-row"><div class="scale-name">否定（比較/嘲笑）</div><div class="scale-bar"><i id="sC"></i></div><div id="vC">0.0</div></div>
+          <div class="scale-row"><div class="scale-name">巻き込み（依存/監視）</div><div class="scale-bar"><i id="sD"></i></div><div id="vD">0.0</div></div>
+        </div>
+      </div>
+
+      <div class="answers">
+        <details>
+          <summary>あなたの回答（タップで開く）</summary>
+          <ol id="answerList"></ol>
+        </details>
+      </div>
+    </div>
+  </section>
+
+  <footer>© 2025 Boundaries Checker – 自己チェック（エンタメ）。保存なし。Esc=閉じる / Shift+X=クイック退出</footer>
+</div>
+
+<script>
+"use strict";
+
+/* =================== 設問（20問） =================== */
+/* 回答：0 まったくない / 1 あまりない / 2 どちらとも / 3 ややある / 4 とてもある */
+const QUESTIONS = [
+  {text:"勝手にスマホやSNSの中身を見られることがある"},
+  {text:"部屋や持ち物を許可なくあさることがある"},
+  {text:"進路や友人選びに強い介入がある"},
+  {text:"断ると「家族なのに」と責められる"},
+  {text:"約束を破ったとき、威圧や怒鳴りがある"},
+  {text:"つらさを話すと「大げさ/被害者ぶる」と否定される"},
+  {text:"ほめた直後に落とされる「ほめ落とし」がある"},
+  {text:"きょうだいや他人とよく比べられる"},
+  {text:"都合の良い時だけ味方、困ると責められる"},
+  {text:"無視や口をきかない“制裁”がある"},
+  {text:"お金や口座を親が強く管理し、明細確認を求められる"},
+  {text:"予定が親の都合でよく上書きされる"},
+  {text:"家のことを外に話すと「裏切り」と言われる"},
+  {text:"親の機嫌を取るため、自分を曲げてしまう"},
+  {text:"距離を取ろうとすると強く引き戻される"},
+  {text:"位置情報/パスワード共有を強要される"},
+  {text:"身体的な暴力や物を投げる・壊すことがある"},
+  {text:"謝罪や話し合いが一方的で、対等に感じない"},
+  {text:"親のストレスのはけ口にされることがある"},
+  {text:"親の価値観に従わないと、愛情が減る気がする"},
+];
+
+const CHOICES = [
+  {label:"まったくない", value:0},
+  {label:"あまりない",   value:1},
+  {label:"どちらとも",   value:2},
+  {label:"ややある",     value:3},
+  {label:"とてもある",   value:4},
+];
+
+/* =================== サブスケールとパターン =================== */
+const SCALE_IDX = {
+  // A 境界（プライバシー・尊重）
+  A:[0,1,2,14,15],
+  // B 操作（脅し・罪悪感・制裁）
+  B:[3,4,9,10,12],
+  // C 否定（比較・嘲笑・評価下げ）
+  C:[5,6,7,8,18,19],
+  // D 巻き込み（過干渉・依存・役割逆転）
+  D:[11,13,16,17],
+};
+
+const PATTERNS = [
+  {key:"snoop",   name:"のぞき見ドローン", idx:[0,1,15], tip:"スマホ/パス共有にNo。通知や公開範囲を見直し、物理鍵も検討。"},
+  {key:"guilt",   name:"家族カード発動",   idx:[3,12],    tip:"“家族だから”の呪文に境界線。OK/NGを紙に書いて言語化。"},
+  {key:"compare", name:"比べっこ選手権",   idx:[7,8,19],  tip:"比較は情報としてスルー。自分の軸を“見える化”。"},
+  {key:"praise",  name:"ほめてからドン",   idx:[6,18],    tip:"事実と感情を切り分け、記録。人前での落としはアウトと伝える。"},
+  {key:"silent",  name:"沈黙ジャイアント", idx:[9,3],     tip:"無視は会話じゃない。時間を区切って第三者を交えた場へ。"},
+  {key:"wallet",  name:"お財布GPS",       idx:[10,15],   tip:"口座・端末の主導権を回収。共有は“必要最小限”に。"},
+  {key:"schedule",name:"スケジュール上司", idx:[11,2,14], tip:"自分カレンダーを可視化。変更は“合意ベース”に。"},
+  {key:"role",    name:"親係!?ロール逆転", idx:[13,18],   tip:"“あなたのケア係”を降りる宣言。信頼できる大人に分担を。"},
+  {key:"violence",name:"こわい音の部屋",   idx:[16,4],    tip:"安全第一。距離を取り、記録して相談先へ。"}
+];
+
+/* =================== 結果テンプレ（5ゾーン） =================== */
+const RESULTS = {
+  safe:{
+    title:"ふわ安心ゾーン",
+    body:"強いサインは目立ちません。とはいえ、関係は“更新制”。小さな違和感はメモに残し、境界線（OK/NG）を言語化しておくと安心です。あなたが安心して暮らせることが最優先。笑いはあなたに向けないで、状況に向けましょう。",
+    steps:["OK/NGリスト","小さな記録","信頼できる人に共有"]
+  },
+  notice:{
+    title:"もや注意ゾーン",
+    body:"もやっとが積もり始めています。いまのうちに“言い方の設計”と“距離の設計”を。時間帯・場所・言葉を選んで短く要望を伝える練習が有効。うまく行かない時は、一旦距離を取りメモに残すのも自衛です。",
+    steps:["要望を短文化","距離の設計","メモ習慣"]
+  },
+  mid:{
+    title:"じわ圧多めゾーン",
+    body:"否定/罪悪感/干渉が目立ちます。あなたの感じ方は正当です。まずは安全を確保し、記録を取り、第三者（学校/職場/相談窓口など）と話せる場を確保しましょう。“一度で変える”より“継続的に守る”が近道です。",
+    steps:["安全の確保","事実の記録","第三者と相談"]
+  },
+  high:{
+    title:"高圧ぎみゾーン",
+    body:"圧が強く、生活や学業/仕事に影響が出やすい状態。ひとりで背負わないで。手順は①安全②記録③外部の力。距離や住まいの選択、経済面の準備など、段階的に“出口”の作戦を立ててください。",
+    steps:["安全優先の計画","証拠/履歴の整理","外部リソースに接続"]
+  },
+  emergency:{
+    title:"安全最優先ゾーン",
+    body:"暴力/破壊/監視の強要など、**安全に関わるサイン**。まずはその場を離れる/距離を取るなど、身の安全を確保してください。できる範囲で日時・内容・証拠を残し、信頼できる大人や公的/専門窓口にアクセスを。あなたのせいではありません。",
+    steps:["その場を離れる","記録を残す","公的/専門窓口"]
+  }
+};
+
+/* =================== 状態/UI =================== */
+let current=0, transitioning=false;
+const answers = Array(QUESTIONS.length).fill(null);
+const $ = s=>document.querySelector(s);
+const el = (t,a={}) => Object.assign(document.createElement(t), a);
+
+function show(id){ document.querySelectorAll(".screen").forEach(s=>s.classList.remove("active")); $(id).classList.add("active"); window.scrollTo({top:0,behavior:"smooth"}); }
+function updateProgress(){
+  const answered = answers.filter(a=>a!==null).length;
+  const pct = Math.round(100 * answered / QUESTIONS.length);
+  $("#bar").style.width = pct + "%";
+  $("#qnum").textContent = `Q${current+1}/${QUESTIONS.length}`;
+  const d=$("#dots"); d.innerHTML=""; for(let i=0;i<QUESTIONS.length;i++){ const s=el("span"); s.textContent="•"; s.style.opacity = i<answered? "1":".25"; d.appendChild(s); }
+}
+function renderQuestion(){
+  const q = QUESTIONS[current];
+  $("#qtxt").textContent = q.text;
+  $("#assist").textContent = "選んだらすぐ次へ進みます";
+  const form=$("#form"); form.innerHTML="";
+  CHOICES.forEach((c,idx)=>{
+    const id = `q${current}c${idx}`;
+    const input = el("input",{type:"radio",name:"q",id,value:String(c.value)});
+    const label = el("label",{className:"opt", htmlFor:id});
+    label.innerHTML = `<div class="emo"></div><div class="lbl">${c.label}</div>`;
+    const wrap = el("div",{}); wrap.appendChild(input); wrap.appendChild(label); form.appendChild(wrap);
+    const choose=()=>{
+      if(transitioning) return; transitioning=true;
+      answers[current]=Number(c.value); label.classList.add("selected");
+      setTimeout(()=>{ if(current<QUESTIONS.length-1){ current++; renderQuestion(); transitioning=false; } else { renderResult(); show("#screen-result"); transitioning=false; } }, 140);
+    };
+    label.addEventListener("click", choose); input.addEventListener("change", choose);
+  }); updateProgress();
+}
+
+/* =================== 集計 =================== */
+function avg(arr){ return arr.reduce((a,b)=>a+b,0)/arr.length; }
+function scoreOf(idxs){ return avg(idxs.map(i => (answers[i] ?? 2))); } // 未回答は中立2
+
+function computeScores(){
+  const A = scoreOf(SCALE_IDX.A);
+  const B = scoreOf(SCALE_IDX.B);
+  const C = scoreOf(SCALE_IDX.C);
+  const D = scoreOf(SCALE_IDX.D);
+  const T = 0.30*A + 0.25*B + 0.25*C + 0.20*D; // 0..4
+
+  // 赤信号：身体的危険/強制監視など
+  const urgent = (answers[16] ?? 0) >= 3 || (answers[15] ?? 0) >= 3;
+  const highPress = (answers[4] ?? 0) >= 3;
+
+  return {A,B,C,D,T,urgent,highPress};
+}
+function decideZone(sc){
+  if(sc.urgent) return "emergency";
+  if(sc.T >= 3.2) return "high";
+  if(sc.T >= 2.6) return "mid";
+  if(sc.T >= 2.0 || sc.highPress) return "notice";
+  return "safe";
+}
+
+/* =================== パターン抽出 =================== */
+function patternScores(){
+  return PATTERNS.map(p=>{
+    const val = avg(p.idx.map(i => (answers[i] ?? 2)));
+    return {...p, val};
+  }).sort((a,b)=>b.val-a.val);
+}
+
+/* =================== UI反映 =================== */
+function pctBar(x){ return Math.max(0,Math.min(100, Math.round(x/4*100))); }
+function setBar(id,val){ $(id).style.width = pctBar(val) + "%"; const vId=id.replace("s","v"); if($(vId)) $(vId).textContent = val.toFixed(1); }
+
+function renderResult(){
+  const sc = computeScores();
+  const key = decideZone(sc);
+  const r = RESULTS[key];
+
+  $("#resTitle").textContent = r.title;
+  $("#comment").textContent = r.body;
+
+  // バッジ色
+  const badge=$("#badge");
+  badge.textContent = ({
+    safe:"安心寄り", notice:"注意", mid:"強めサイン", high:"高圧ぎみ", emergency:"安全最優先"
+  })[key] || "結果";
+  badge.style.background = (key==="emergency") ? "#FEF2F2" : (key==="high") ? "#FFF7ED" : "#F4F6FF";
+  badge.style.borderColor = (key==="emergency") ? "#FEE2E2" : (key==="high") ? "#FFEDD5" : "#E5E7EB";
+  badge.style.color = (key==="emergency") ? "#B91C1C" : (key==="high") ? "#9A3412" : "#111827";
+
+  // メータ
+  $("#tVal").textContent = sc.T.toFixed(1);
+  $("#tBar").style.width = pctBar(sc.T) + "%";
+  setBar("#sA", sc.A); setBar("#sB", sc.B); setBar("#sC", sc.C); setBar("#sD", sc.D);
+
+  // ステップ（小さな行動）
+  const stepBox=$("#steps"); stepBox.innerHTML="";
+  r.steps.forEach(s=>{ const x=el("span",{className:"pill"}); x.textContent=s; stepBox.appendChild(x); });
+
+  // パターンTop3
+  const plist = $("#patternList"); plist.innerHTML="";
+  patternScores().slice(0,3).forEach(p=>{
+    const card = el("div",{className:"card-i"});
+    const title = el("div",{innerHTML:`<b>${p.name}</b>　スコア ${p.val.toFixed(1)}/4`});
+    const desc  = el("div",{className:"mute",textContent:p.tip});
+    card.appendChild(title); card.appendChild(desc); plist.appendChild(card);
+  });
+
+  // 回答リスト
+  const ol=$("#answerList"); ol.innerHTML="";
+  QUESTIONS.forEach((q,i)=>{
+    const li = el("li");
+    const a = answers[i]; const label = (a==null) ? "未回答" : CHOICES[a].label;
+    li.textContent = `${i+1}. ${q.text} … 「${label}」`;
+    ol.appendChild(li);
+  });
+}
+
+/* =================== イベント =================== */
+function start(){
+  for(let i=0;i<answers.length;i++) answers[i]=null;
+  current=0; transitioning=false; show("#screen-quiz"); renderQuestion();
+}
+$("#btnStart").addEventListener("click", start);
+$("#btnAbout").addEventListener("click", ()=>{
+  alert("本診断は“境界/操作/否定/巻き込み”を自己チェックするためのツールです。ニックネームは状況の“あるある”に名前を付けて距離を置くためのもの。あなたを笑うためのものではありません。危険を感じたら身の安全を最優先にし、第三者に相談してください。");
+});
+$("#btnQuit").addEventListener("click", ()=> show("#screen-start"));
+$("#btnHide").addEventListener("click", ()=>{
+  try{ window.open("https://www.google.com/search?q=%E5%A4%A9%E6%B0%97","_blank"); }catch(e){}
+  location.replace("about:blank");
+});
+document.addEventListener("keydown",(e)=>{
+  if(e.key==="Escape"){ show("#screen-start"); }
+  if(e.shiftKey && (e.key==="X" || e.key==="x")){
+    try{ window.open("https://www.google.com/search?q=%E5%A4%A9%E6%B0%97","_blank"); }catch(err){}
+    location.replace("about:blank");
+  }
+});
+$("#btnRetry").addEventListener("click", start);
+$("#btnCopy").addEventListener("click", async ()=>{
+  try{
+    const sc = computeScores();
+    const top = patternScores().slice(0,3).map(p=>p.name).join(" / ");
+    const txt = [
+      "【毒親サイン診断 結果メモ】",
+      `ゾーン: ${RESULTS[decideZone(sc)].title}`,
+      `全体サイン(0-4): ${sc.T.toFixed(1)}  A:${sc.A.toFixed(1)} B:${sc.B.toFixed(1)} C:${sc.C.toFixed(1)} D:${sc.D.toFixed(1)}`,
+      `パターン: ${top}`,
+      "※ 安全最優先。必要なら第三者へ。"
+    ].join("\\n");
+    await navigator.clipboard.writeText(txt);
+    alert("結果メモをクリップボードにコピーしました。");
+  }catch(e){ prompt("コピーできない場合は手動で選択してコピーしてください", "毒親サイン診断 結果"); }
+});
+
+/* =================== 初期化 =================== */
+(function initDots(){
+  const d=$("#dots"); d.innerHTML=""; for(let i=0;i<QUESTIONS.length;i++){ const s=document.createElement("span"); s.textContent="•"; s.style.opacity=".25"; d.appendChild(s); }
+})();
+</script>
+</body>
+</html>

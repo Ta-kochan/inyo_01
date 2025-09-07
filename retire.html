@@ -1,0 +1,545 @@
+<!doctype html>
+<html lang="ja">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
+  <meta name="theme-color" content="#F7F8FC" />
+  <title>退職診断｜Exit Readiness Checker</title>
+  <style>
+    :root{
+      /* グレイッシュ・パステル（落ち着き×優しさ） */
+      --bg:#F7F8FC;
+      --bg-grad:linear-gradient(180deg,#F7F8FC 0%, #F4F2F7 100%);
+      --card:#FFFFFF;
+      --ink:#212529;
+      --muted:#6B7280;
+      --line:#E5E7EB;
+
+      --accent:#9EC5FE;   /* ペールブルー */
+      --accent-2:#B7EBD3; /* ミント */
+      --accent-3:#F7B8D9; /* ソフトローズ */
+      --warn:#F59E0B;     /* ほどよい警戒 */
+      --danger:#EF4444;   /* 強いアラート */
+
+      --shadow: 0 2px 10px rgba(17,24,39,.06), 0 1px 1px rgba(17,24,39,.04);
+      --radius:12px;
+      --radius-lg:16px;
+    }
+    *{box-sizing:border-box}
+    html,body{height:100%}
+    body{
+      margin:0;
+      font-family:-apple-system,BlinkMacSystemFont,"Segoe UI","Hiragino Sans","Noto Sans JP","Yu Gothic",Meiryo,system-ui,sans-serif;
+      background:var(--bg-grad);
+      color:var(--ink);
+      -webkit-font-smoothing:antialiased;
+      -moz-osx-font-smoothing:grayscale;
+      line-height:1.65;
+    }
+    .wrap{max-width:900px;margin:0 auto;padding:18px 16px 28px}
+
+    header{display:flex;align-items:center;gap:12px;padding:10px 6px 14px}
+    .brand{display:flex;align-items:center;gap:10px;font-weight:800;font-size:20px;letter-spacing:.01em}
+    .brand-badge{width:40px;height:40px;border-radius:10px;background:#fff;border:1px solid var(--line);display:grid;place-items:center;box-shadow:var(--shadow)}
+    .brand-badge span{font-size:12px;color:#334155;font-weight:800;letter-spacing:.08em}
+    .sub{color:var(--muted);font-size:13px;margin-top:-4px}
+
+    .card{background:var(--card);border-radius:var(--radius-lg);box-shadow:var(--shadow);border:1px solid var(--line);padding:18px}
+    .screen{display:none}.screen.active{display:block}
+
+    .btn{
+      appearance:none;border:1px solid var(--line);border-radius:12px;padding:12px 16px;
+      font-weight:700;letter-spacing:.02em;cursor:pointer;background:linear-gradient(180deg, #A8C5FF, var(--accent));
+      color:#fff;transition:.15s transform,.2s box-shadow,.2s background;box-shadow: 0 1px 2px rgba(17,24,39,.06);font-size:16px
+    }
+    .btn:hover{transform:translateY(-1px)} .btn:active{transform:translateY(0)}
+    .btn.ghost{background:#fff;color:var(--ink);border:1px solid var(--line)}
+    .btn.warn{background:linear-gradient(180deg,#FBBF24,#F59E0B);border-color:#F59E0B;color:#111827}
+
+    /* START */
+    .hero{display:grid;gap:12px;justify-items:center;text-align:center;padding:6px 8px 14px}
+    .hero h1{margin:8px 0 0;font-size:22px;letter-spacing:.01em}
+    .hero p{margin:2px 0;color:var(--muted)}
+    .start-art{width:220px;height:220px;border-radius:50%;background: radial-gradient(60% 60% at 50% 45%, #FFFFFF 0%, #EEF3FF 65%, #EDE7F6 100%);box-shadow: var(--shadow);position:relative;overflow:hidden}
+    .actions{display:flex;gap:10px;flex-wrap:wrap;justify-content:center;margin-top:10px}
+
+    /* QUIZ */
+    .toolbar{display:flex;align-items:center;justify-content:space-between;margin-bottom:8px}
+    .quit{appearance:none;border:none;background:transparent;color:#374151;cursor:pointer;font-weight:700}
+    .progress{height:10px;background:#F4F6FA;border:1px solid var(--line);border-radius:999px;position:relative;margin:6px 2px 18px;overflow:hidden}
+    .bar{height:100%;width:0;background:linear-gradient(90deg,#BFD6FF,#CDEEDC,#F8C9DF);transition:width .35s ease;border-radius:999px}
+    .progress .dots{position:absolute;inset:0;display:flex;gap:6px;justify-content:center;align-items:center;opacity:.7}
+    .progress .dots span{font-size:12px;line-height:10px}
+    .qhead{display:flex;align-items:center;justify-content:space-between;gap:10px;margin:4px 0 10px}
+    .qnum{font-weight:800;background:#F4F6FF;color:#1F2937;border:1px solid var(--line);border-radius:999px;padding:4px 10px}
+    .qtxt{font-size:18px;font-weight:700}
+    .options{display:grid;grid-template-columns:1fr;gap:10px;margin:12px 0}
+    @media(min-width:560px){.options{grid-template-columns:repeat(5,1fr)}}
+    .opt{border:1px solid var(--line);border-radius:12px;padding:14px 10px;text-align:center;cursor:pointer;user-select:none;display:grid;gap:6px;align-content:center;min-height:68px;background:#fff;transition:border-color .12s, box-shadow .12s, transform .08s}
+    .opt:active{transform:scale(.99)}
+    .opt .emo{display:none}
+    .opt .lbl{font-size:13px;color:#374151}
+    input[type=radio]{position:absolute;opacity:0;pointer-events:none}
+    .selected{border-color: var(--accent); box-shadow:0 0 0 3px rgba(158,197,254,.35)}
+    .assist{color:var(--muted);font-size:12px}
+
+    /* RESULT */
+    .badge{display:inline-block;border:1px solid var(--line);background:#F4F6FF;color:#111827;border-radius:999px;padding:4px 10px;font-weight:700;font-size:12px}
+    .result-top{display:grid;gap:10px}
+    .grid{display:grid;gap:12px}
+    @media(min-width:820px){.grid{grid-template-columns:1.25fr .75fr}}
+
+    .metric{display:grid;gap:6px}
+    .meter-label{display:flex;align-items:center;justify-content:space-between;font-size:13px;color:#374151}
+    .meter{height:12px;background:#F4F6FA;border:1px solid var(--line);border-radius:999px;overflow:hidden}
+    .meter > i{display:block;height:100%;background:linear-gradient(90deg,#8FB6FF,#CDEEDC);width:0}
+
+    .scale-box{background:#fff;border:1px solid var(--line);border-radius:12px;padding:12px;box-shadow:var(--shadow)}
+    .scale-row{display:grid;grid-template-columns:1fr 42px;align-items:center;gap:8px;margin:6px 0}
+    .scale-name{font-size:13px;color:#374151}
+    .scale-bar{height:8px;background:#F4F6FA;border:1px solid var(--line);border-radius:999px;overflow:hidden}
+    .scale-bar > i{display:block;height:100%;background:#9EC5FE;width:0}
+
+    .title{font-weight:800;font-size:18px;background:#F4F6FF;padding:6px 10px;border-radius:10px;display:inline-block}
+    .speech{background:linear-gradient(#FFFFFF,#FAFAFE);border:1px solid var(--line);border-radius:14px;padding:14px 14px 18px}
+    .steps{margin:8px 0 0;padding:0 0 0 18px}
+    .steps li{margin:4px 0}
+
+    .mute{color:var(--muted);font-size:12px}
+    .cta-row{display:flex;gap:8px;flex-wrap:wrap;margin-top:8px}
+    .copy{appearance:none;border:1px dashed var(--line);border-radius:10px;background:#fff;padding:8px 10px;cursor:pointer;color:#111827}
+
+    .answers{margin-top:14px;font-size:14px;color:#444}
+    .answers details{background:#FAFBFF;border-radius:12px;padding:10px;border:1px solid var(--line)}
+    .answers summary{cursor:pointer;font-weight:700}
+    .answers ol{margin:8px 0 0 18px}
+    .answers li{margin:4px 0}
+
+    footer{margin-top:18px;color:var(--muted);font-size:12px;text-align:center}
+    a{color:#1D6AE5;text-decoration:none}
+    @media(prefers-reduced-motion: reduce){.btn,.bar{transition:none}}
+  </style>
+</head>
+<body>
+  <div class="wrap">
+    <header>
+      <div class="brand-badge" aria-hidden="true"><span>ERC</span></div>
+      <div>
+        <div class="brand">退職診断｜Exit Readiness Checker</div>
+        <div class="sub">センシティブなテーマにつき、**安全と健康を最優先**に。所要3〜4分／全30問</div>
+      </div>
+    </header>
+
+    <!-- START -->
+    <section id="screen-start" class="screen active">
+      <div class="card hero">
+        <div class="start-art" aria-hidden="true"></div>
+        <h1>いま辞めるべき？ もう少し備えるべき？</h1>
+        <p>法令・健康・職場文化・成長・家計・市場準備の6観点で、今の選択肢を見える化します。</p>
+        <p class="mute">※ 本ツールは自己チェック（エンタメ）です。医学・法律・投資の専門評価ではありません。危険や健康不安が強い時は、身の安全を最優先にし専門窓口をご利用ください。データは保存しません。</p>
+        <div class="actions">
+          <button class="btn" id="btnStart">診断をはじめる</button>
+          <button class="btn ghost" id="btnAbout">説明を読む</button>
+        </div>
+      </div>
+    </section>
+
+    <!-- QUIZ -->
+    <section id="screen-quiz" class="screen">
+      <div class="card">
+        <div class="toolbar">
+          <div class="mute">タップすると次へ進みます（全30問）</div>
+          <button class="quit" id="btnQuit" title="スタートに戻る">× 閉じる</button>
+        </div>
+        <div class="progress" aria-hidden="true">
+          <div class="bar" id="bar" style="width:0%"></div>
+          <div class="dots" id="dots" aria-hidden="true"></div>
+        </div>
+        <div class="qhead">
+          <div class="qnum" id="qnum">Q1/30</div>
+          <div class="assist" id="assist" aria-live="polite"></div>
+        </div>
+        <div class="qtxt" id="qtxt">質問テキスト</div>
+        <form id="form" class="options" aria-describedby="assist"><!-- injected --></form>
+      </div>
+    </section>
+
+    <!-- RESULT -->
+    <section id="screen-result" class="screen">
+      <div class="card">
+        <div class="result-top">
+          <span id="badge" class="badge">結果</span>
+          <h2 class="title" id="resTitle">タイトル</h2>
+        </div>
+
+        <div class="grid" style="margin-top:10px">
+          <div class="speech" id="comment"><!-- 本文 --></div>
+
+          <div class="scale-box">
+            <div class="metric">
+              <div class="meter-label"><span>離職圧（A〜D）</span><b id="epVal">0.0</b></div>
+              <div class="meter"><i id="epBar" style="width:0%"></i></div>
+            </div>
+            <div class="metric" style="margin-top:10px">
+              <div class="meter-label"><span>準備度（E・F）</span><b id="rVal">0.0</b></div>
+              <div class="meter"><i id="rBar" style="width:0%"></i></div>
+            </div>
+
+            <div style="margin-top:12px" class="mute">6つの観点（0〜4）</div>
+            <div class="scale-row"><div class="scale-name">A 法令・リスク</div><div class="scale-bar"><i id="aBar"></i></div></div>
+            <div class="scale-row"><div class="scale-name">B 健康・バーンアウト</div><div class="scale-bar"><i id="bBar"></i></div></div>
+            <div class="scale-row"><div class="scale-name">C マネジメント・文化</div><div class="scale-bar"><i id="cBar"></i></div></div>
+            <div class="scale-row"><div class="scale-name">D 成長・報酬</div><div class="scale-bar"><i id="dBar"></i></div></div>
+            <div class="scale-row"><div class="scale-name">E 家計・生活クッション</div><div class="scale-bar"><i id="eBar"></i></div></div>
+            <div class="scale-row"><div class="scale-name">F 市場・転職準備</div><div class="scale-bar"><i id="fBar"></i></div></div>
+          </div>
+        </div>
+
+        <div class="speech" style="margin-top:12px">
+          <b>次の一歩（3つ）</b>
+          <ol class="steps" id="steps"></ol>
+          <div class="cta-row">
+            <button class="copy" id="btnCopyResult">結果メモをコピー</button>
+            <button class="btn ghost" id="btnRetry">もう一度やる</button>
+          </div>
+          <p class="mute" style="margin-top:8px">※ 重大な危険や体調不良がある場合は、身の安全を最優先に。社内の相談窓口、労働相談、医療などの公的/専門窓口をご利用ください。</p>
+        </div>
+
+        <div class="answers">
+          <details>
+            <summary>あなたの回答（タップで開く）</summary>
+            <ol id="answerList"></ol>
+          </details>
+        </div>
+      </div>
+    </section>
+
+    <footer>
+      <p>© 2025 Exit Readiness Checker – 本ツールは自己チェック（エンタメ）です。データは保存しません。</p>
+    </footer>
+  </div>
+
+<script>
+"use strict";
+
+/* ========= 設計メモ =========
+  6スケール×5問=30問。5択（0..4）。
+  A〜Dを合成して離職圧EP、E・Fで準備度R。
+  RedFlag（即時注意）あり。結果9カテゴリ。
+============================ */
+
+/* --------------- 質問 --------------- */
+const QUESTIONS = [
+  // A. リスク／法令
+  {text:"残業代の未払いなど、明確な不備がある", reverse:false},
+  {text:"暴言・暴力・性的言動などのハラスメントがある", reverse:false},
+  {text:"法令や倫理に反する指示がある", reverse:false},
+  {text:"安全配慮が不十分で、けがや事故の不安が強い", reverse:false},
+  {text:"相談しても改善されず、報復や不利益が怖い", reverse:false},
+  // B. 健康／バーンアウト
+  {text:"仕事が原因の体調不良（睡眠・食欲など）が続く", reverse:false},
+  {text:"休日でも仕事のことで頭がいっぱいになる", reverse:false},
+  {text:"医師から休養や働き方の見直しをすすめられた", reverse:false},
+  {text:"出勤前に強い不安や憂うつがある", reverse:false},
+  {text:"休暇や有給を遠慮なく取れる", reverse:true},
+  // C. マネジメント／文化
+  {text:"上司や組織への信頼が持てない", reverse:false},
+  {text:"評価や処遇が不公平だと感じる", reverse:false},
+  {text:"働きやすい仕組みやルールが整っている", reverse:true},
+  {text:"チームで助け合える", reverse:true},
+  {text:"会社の価値観が自分とズレている", reverse:false},
+  // D. 成長／報酬
+  {text:"今の仕事で学びや成長を感じる", reverse:true},
+  {text:"役割やミッションが曖昧で迷子になりがち", reverse:false},
+  {text:"将来も続けたいと思える", reverse:true},
+  {text:"希望する業務や部門へ異動の道がある", reverse:true},
+  {text:"給与や待遇が市場相場とかけ離れて低い", reverse:false},
+  // E. 家計・生活クッション（準備度）
+  {text:"生活防衛資金（3〜6か月以上）がある", reverse:false},
+  {text:"家族・パートナーと家計の合意が取れている", reverse:false},
+  {text:"退職後の保険・年金・税の見通しがある", reverse:false},
+  {text:"今すぐ失うと困る福利厚生（治療・育休等）が少ない", reverse:false},
+  {text:"有給消化・退職手続きの段取りを描ける", reverse:false},
+  // F. 市場・転職準備
+  {text:"現職スキルは転職市場で評価されやすい", reverse:false},
+  {text:"応募したい企業・職種が具体的にある", reverse:false},
+  {text:"職務経歴書・ポートフォリオを更新済み", reverse:false},
+  {text:"面談や面接の予定が入っている", reverse:false},
+  {text:"現職を続けながら準備を進められる余力がある", reverse:false},
+];
+
+/* --------------- 選択肢 --------------- */
+const CHOICES = [
+  {label:"まったくない", value:0},
+  {label:"あまりない",   value:1},
+  {label:"どちらとも",   value:2},
+  {label:"ややある",     value:3},
+  {label:"とてもある",   value:4},
+];
+
+/* --------------- スケール定義 --------------- */
+const SCALE_IDX = {
+  A: [0,1,2,3,4],       // リスク/法令
+  B: [5,6,7,8,9],       // 健康/バーンアウト
+  C: [10,11,12,13,14],  // マネジメント/文化
+  D: [15,16,17,18,19],  // 成長/報酬
+  E: [20,21,22,23,24],  // 家計・生活クッション
+  F: [25,26,27,28,29],  // 市場・転職準備
+};
+const RED_FLAG_Q = new Set([0,1,2,3,4,7,8]); // index基準
+
+/* --------------- 結果テンプレ --------------- */
+const RESULTS = {
+  emergency: {
+    title: "緊急退避モード",
+    body: "ハラスメントや法令違反、強い健康悪化のサイン。まずは身の安全が最優先です。できる範囲で記録（日時・発言・証拠）を残し、社内窓口や外部の相談先にアクセスを。無理に我慢せず、医師の指示や休職も選択肢に。退職判断は、安全を確保してから段階的に進めましょう。",
+    steps: ["事実メモと証拠整理","信頼できる人へ共有","相談窓口・医療にアクセス"]
+  },
+  short: {
+    title: "短期退職プラン（1〜3か月）",
+    body: "離職圧が高く、準備度も一定以上。1〜3か月の円満退職が現実的です。応募・面談を並行し、内定タイミングに合わせて有給・引継ぎ計画を逆算。交渉で改善余地が小さいなら、先送りはリスクになりやすい局面です。",
+    steps: ["応募5社から着手","職務経歴書を更新","退職までの逆算計画"]
+  },
+  health_first: {
+    title: "健康優先→準備",
+    body: "離職圧は高い一方、準備や家計の余力が不足しています。まずは回復と地ならしを。働き方の調整や有給、医療的対応を先に入れ、3か月以内に進捗レビュー。整い次第、短期プランへ移行すると安全です。",
+    steps: ["業務量の調整を協議","資金クッションの確保","週1で準備タスク"]
+  },
+  half_year: {
+    title: "半年以内の離脱",
+    body: "離職圧は中〜高、準備度は高め。3〜6か月の計画退職が適切です。実績の定量化、ポートフォリオ整備、在職面談を進めて比較検討。焦らず、しかし粛々と手を動かしましょう。",
+    steps: ["実績の数値化","月3件の面談設定","引継ぎドラフト作成"]
+  },
+  within_year: {
+    title: "年内で準備退職",
+    body: "離職圧は中〜高ですが、準備や市場感の強化が必要。6〜12か月の計画を引き、スキルの底上げと家計の体力づくりを。社外活動（登壇・執筆・副業）を混ぜると市場価値が上がり、選択肢が増えます。",
+    steps: ["学習計画の作成","固定費の見直し","四半期ごとに再判定"]
+  },
+  internal_first: {
+    title: "内部調整ファースト",
+    body: "文化や評価に課題はありますが、健康負荷は相対的に軽め。配置転換・ロール再設計・目標の再合意で改善を試す価値があります。期限（3か月）を決め、変化が無ければ外部選択も検討しましょう。",
+    steps: ["1on1で要望を具体化","異動/ジョブクラフト提案","締切付き改善計画"]
+  },
+  stay_upskill: {
+    title: "現職維持×副業・強化",
+    body: "離職圧は中程度以下。年内は現職を活かしつつ、副業や学習で実績と市場価値を積むフェーズです。今すぐ辞めるより、強みの証明づくりを先に進めましょう。",
+    steps: ["副業/プロボノで実績作り","社外ネットワーク拡大","四半期レビュー"]
+  },
+  leave_of_absence: {
+    title: "休職・安全回復を先に",
+    body: "健康負荷が大きく、準備度も低め。退職か継続かの前に、休職や働き方の調整で回復を優先。安全が整ってから進路を選ぶのが、結果としての近道です。",
+    steps: ["医師と相談","就業配慮を申請","回復計画（睡眠/通院）"]
+  },
+  stay_review: {
+    title: "現職維持（定期見直し）",
+    body: "大きな離職圧は見られません。今は現職を活かす時期。停滞を防ぐため、3か月ごとに満足度・学び・報酬を見直しましょう。小さな不満の放置は、将来のリスクに変わりやすい領域です。",
+    steps: ["次四半期テーマ設定","期待値のすり合わせ","相場の定期把握"]
+  }
+};
+
+/* --------------- 状態 --------------- */
+let current = 0;
+let transitioning = false;
+const answers = Array(QUESTIONS.length).fill(null);
+
+/* --------------- DOMヘルパ --------------- */
+const $ = sel => document.querySelector(sel);
+const el = (tag, attrs={}) => Object.assign(document.createElement(tag), attrs);
+
+/* --------------- UI表示 --------------- */
+function show(id){
+  document.querySelectorAll(".screen").forEach(s => s.classList.remove("active"));
+  $(id).classList.add("active");
+  window.scrollTo({top:0, behavior:"smooth"});
+}
+
+function updateProgress(){
+  const answered = answers.filter(a=>a!==null).length;
+  const pct = Math.round(100 * answered / QUESTIONS.length);
+  $("#bar").style.width = pct + "%";
+  $("#qnum").textContent = `Q${current+1}/${QUESTIONS.length}`;
+
+  const d = $("#dots"); d.innerHTML = "";
+  for(let i=0;i<QUESTIONS.length;i++){
+    const s = el("span");
+    s.textContent = "•";
+    s.style.opacity = i < answered ? "1" : ".25";
+    d.appendChild(s);
+  }
+}
+
+function renderQuestion(){
+  const q = QUESTIONS[current];
+  $("#qtxt").textContent = q.text;
+  $("#assist").textContent = "選んだらすぐ次へ進みます";
+  const form = $("#form"); form.innerHTML = "";
+  CHOICES.forEach((c, idx)=>{
+    const id = `q${current}c${idx}`;
+    const input = el("input", {type:"radio", name:"q", id, value:String(c.value)});
+    const label = el("label", {className:"opt", htmlFor:id});
+    label.innerHTML = `<div class="emo"></div><div class="lbl">${c.label}</div>`;
+    const wrap = el("div", {}); wrap.appendChild(input); wrap.appendChild(label); form.appendChild(wrap);
+
+    const choose = ()=>{
+      if(transitioning) return;
+      transitioning = true;
+      answers[current] = Number(c.value);
+      label.classList.add("selected");
+      setTimeout(()=>{
+        if(current < QUESTIONS.length - 1){
+          current++; renderQuestion(); transitioning = false;
+        }else{
+          renderResult(); show("#screen-result"); transitioning = false;
+        }
+      }, 140);
+    };
+    label.addEventListener("click", choose);
+    input.addEventListener("change", choose);
+  });
+
+  if(answers[current] !== null){
+    const idx = CHOICES.findIndex(c=>c.value===answers[current]);
+    const lab = form.querySelectorAll(".opt")[idx];
+    if(lab) lab.classList.add("selected");
+  }
+
+  updateProgress();
+}
+
+/* --------------- 集計 --------------- */
+function avg(arr){ return arr.reduce((a,b)=>a+b,0) / arr.length; }
+function orientedVal(i, raw){
+  const q = QUESTIONS[i];
+  const v = q.reverse ? (4 - raw) : raw;
+  return v;
+}
+function computeScores(){
+  const filled = answers.map(v => (v==null? 2 : v));
+  function scoreOf(indices){ return avg(indices.map(i => orientedVal(i, filled[i]))); }
+
+  const A = scoreOf(SCALE_IDX.A);
+  const B = scoreOf(SCALE_IDX.B);
+  const C = scoreOf(SCALE_IDX.C);
+  const D = scoreOf(SCALE_IDX.D);
+  const E = scoreOf(SCALE_IDX.E);
+  const F = scoreOf(SCALE_IDX.F);
+
+  // マイルドU字（ごく軽い非線形）：端に寄せすぎず中心を少しほぐす
+  const pow = (x,g)=>Math.sign(x)*Math.pow(Math.abs(x), g);
+  const EP_linear = 0.35*A + 0.25*B + 0.25*C + 0.15*D; // 0..4
+  const EP = (pow(EP_linear/4, 0.95))*4;
+  const R_linear  = 0.5*E + 0.5*F;
+  const R  = (pow(R_linear/4, 0.95))*4;
+
+  const redFlag = [...RED_FLAG_Q].some(i => (answers[i] ?? 2) >= 3);
+
+  return {A,B,C,D,E,F, EP, R, redFlag};
+}
+
+function decideOutcome(sc){
+  const {A,B,EP,R,redFlag} = sc;
+  if (redFlag) return "emergency";
+  if (EP >= 3.2 && R >= 2.5) return "short";
+  if (EP >= 3.2 && R <  2.5) return "health_first";
+  if (EP >= 2.5 && EP < 3.2 && R >= 2.8) return "half_year";
+  if (EP >= 2.5 && EP < 3.2 && R <  2.8) return "within_year";
+  if (EP >= 1.8 && EP < 2.5 && sc.C >= sc.B) return "internal_first";
+  if (EP >= 1.8 && EP < 2.5 && sc.C <  sc.B) return "stay_upskill";
+  if (sc.B >= 3.0 && R < 2.5) return "leave_of_absence";
+  return "stay_review";
+}
+
+/* --------------- 結果描画 --------------- */
+function pct(x){ return Math.max(0, Math.min(100, Math.round(x/4*100))); }
+function setBar(id, val){ $(id).style.width = pct(val) + "%"; }
+function renderResult(){
+  const sc = computeScores();
+  const key = decideOutcome(sc);
+  const r = RESULTS[key];
+
+  // タイトル・本文
+  $("#resTitle").textContent = r.title;
+  $("#comment").textContent = r.body;
+
+  // バッジ色（軽い示唆）
+  const badge = $("#badge");
+  badge.textContent = ({
+    emergency: "アラート強", short:"短期退職寄り", health_first:"健康優先", half_year:"3〜6か月", within_year:"6〜12か月",
+    internal_first:"内部調整", stay_upskill:"現職×強化", leave_of_absence:"休職優先", stay_review:"現職維持"
+  })[key] || "結果";
+  badge.style.background = (key==="emergency") ? "#FEF2F2" : (key==="short"||key==="half_year"||key==="within_year") ? "#F3F7FF" : "#F4F6FF";
+  badge.style.borderColor = (key==="emergency") ? "#FEE2E2" : "#E5E7EB";
+  badge.style.color = (key==="emergency") ? "#B91C1C" : "#111827";
+
+  // メータ
+  $("#epVal").textContent = sc.EP.toFixed(1);
+  $("#rVal").textContent  = sc.R.toFixed(1);
+  setBar("#epBar", sc.EP);
+  setBar("#rBar", sc.R);
+
+  // サブスケール
+  setBar("#aBar", sc.A);
+  setBar("#bBar", sc.B);
+  setBar("#cBar", sc.C);
+  setBar("#dBar", sc.D);
+  setBar("#eBar", sc.E);
+  setBar("#fBar", sc.F);
+
+  // 次の一歩
+  const ol = $("#steps"); ol.innerHTML = "";
+  r.steps.forEach(s=>{ const li = el("li"); li.textContent = s; ol.appendChild(li); });
+
+  // 回答リスト
+  const ans = $("#answerList"); ans.innerHTML = "";
+  QUESTIONS.forEach((q,i)=>{
+    const li = el("li");
+    const a = answers[i];
+    const label = (a==null) ? "未回答" : CHOICES[a].label;
+    li.textContent = `${i+1}. ${q.text} … 「${label}」`;
+    ans.appendChild(li);
+  });
+
+  // 共有はしないが、メモ用にコピーしやすくする
+  $("#btnCopyResult").onclick = async ()=>{
+    try{
+      const txt = [
+        `【退職診断 結果】${r.title}`,
+        `離職圧(0-4): ${sc.EP.toFixed(1)} / 準備度(0-4): ${sc.R.toFixed(1)}`,
+        `A:${sc.A.toFixed(1)} B:${sc.B.toFixed(1)} C:${sc.C.toFixed(1)} D:${sc.D.toFixed(1)} E:${sc.E.toFixed(1)} F:${sc.F.toFixed(1)}`,
+        `メモ: ${r.body}`,
+        `次の一歩: ${r.steps.join(" / ")}`
+      ].join("\n");
+      await navigator.clipboard.writeText(txt);
+      alert("結果メモをクリップボードにコピーしました。");
+    }catch(e){
+      prompt("コピーできない場合は手動で選択してコピーしてください", r.title);
+    }
+  };
+}
+
+/* --------------- イベント --------------- */
+$("#btnStart").addEventListener("click", ()=>{
+  for(let i=0;i<answers.length;i++) answers[i]=null;
+  current=0; transitioning=false;
+  show("#screen-quiz"); renderQuestion();
+});
+$("#btnAbout").addEventListener("click", ()=>{
+  alert("この診断は、法令・健康・職場文化・成長・家計・市場準備の6観点で状況を見える化する自己チェックです。医学・法律・投資の専門評価ではありません。危険や健康不安が強い時は、身の安全を最優先にし、公的/専門の相談先をご利用ください。");
+});
+$("#btnQuit").addEventListener("click", ()=> show("#screen-start"));
+$("#btnRetry").addEventListener("click", ()=>{
+  for(let i=0;i<answers.length;i++) answers[i]=null;
+  current=0; transitioning=false;
+  show("#screen-quiz"); renderQuestion();
+});
+
+/* --------------- 初期化 --------------- */
+(function initDots(){
+  const d = $("#dots"); d.innerHTML = "";
+  for(let i=0;i<QUESTIONS.length;i++){
+    const s = el("span"); s.textContent = "•"; s.style.opacity=".25"; d.appendChild(s);
+  }
+})();
+</script>
+</body>
+</html>

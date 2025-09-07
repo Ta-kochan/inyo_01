@@ -1,0 +1,597 @@
+<!doctype html>
+<html lang="ja">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<meta name="theme-color" content="#F7F8FC">
+<title>就活診断 Pro｜Career Fit + 20年プラン</title>
+<style>
+:root{
+  --bg:#F7F8FC; --bg-grad:linear-gradient(180deg,#F7F8FC 0%, #F4F2F7 100%);
+  --card:#FFFFFF; --ink:#212529; --muted:#6B7280; --line:#E5E7EB;
+  --accent:#9EC5FE; --accent-2:#B7EBD3; --accent-3:#F7B8D9; --ok:#10B981; --warn:#F59E0B;
+  --shadow: 0 2px 10px rgba(17,24,39,.06), 0 1px 1px rgba(17,24,39,.04);
+  --radius:12px; --radius-lg:16px;
+}
+*{box-sizing:border-box} html,body{height:100%}
+body{
+  margin:0;font-family:-apple-system,BlinkMacSystemFont,"Segoe UI","Hiragino Sans","Noto Sans JP","Yu Gothic",Meiryo,system-ui,sans-serif;
+  background:var(--bg-grad);color:var(--ink);-webkit-font-smoothing:antialiased;-moz-osx-font-smoothing:grayscale;line-height:1.65;
+}
+.wrap{max-width:980px;margin:0 auto;padding:18px 16px 28px}
+header{display:flex;align-items:center;gap:12px;padding:10px 6px 14px}
+.brand{display:flex;align-items:center;gap:10px;font-weight:800;font-size:20px;letter-spacing:.01em}
+.brand-badge{width:40px;height:40px;border-radius:10px;background:#fff;border:1px solid var(--line);display:grid;place-items:center;box-shadow:var(--shadow)}
+.brand-badge span{font-size:12px;color:#334155;font-weight:800;letter-spacing:.08em}
+.sub{color:var(--muted);font-size:13px;margin-top:-4px}
+.card{background:var(--card);border-radius:var(--radius-lg);box-shadow:var(--shadow);border:1px solid var(--line);padding:18px}
+.screen{display:none}.screen.active{display:block}
+.btn{appearance:none;border:1px solid var(--line);border-radius:12px;padding:12px 16px;font-weight:700;letter-spacing:.02em;cursor:pointer;
+  background:linear-gradient(180deg,#A8C5FF,var(--accent));color:#fff;transition:.15s transform,.2s box-shadow,.2s background;box-shadow:0 1px 2px rgba(17,24,39,.06);font-size:16px}
+.btn:hover{transform:translateY(-1px)} .btn:active{transform:translateY(0)}
+.btn.ghost{background:#fff;color:var(--ink);border:1px solid var(--line)}
+.copy{appearance:none;border:1px dashed var(--line);border-radius:10px;background:#fff;padding:8px 10px;cursor:pointer;color:#111827}
+.hero{display:grid;gap:12px;justify-items:center;text-align:center;padding:6px 8px 14px}
+.hero h1{margin:8px 0 0;font-size:22px;letter-spacing:.01em}
+.hero p{margin:2px 0;color:var(--muted)}
+.start-art{width:220px;height:220px;border-radius:50%;background:radial-gradient(60% 60% at 50% 45%, #FFFFFF 0%, #EEF3FF 65%, #EDE7F6 100%);box-shadow:var(--shadow)}
+.actions{display:flex;gap:10px;flex-wrap:wrap;justify-content:center;margin-top:10px}
+
+.toolbar{display:flex;align-items:center;justify-content:space-between;margin-bottom:8px}
+.quit{appearance:none;border:none;background:transparent;color:#374151;cursor:pointer;font-weight:700}
+.progress{height:10px;background:#F4F6FA;border:1px solid var(--line);border-radius:999px;position:relative;margin:6px 2px 18px;overflow:hidden}
+.bar{height:100%;width:0;background:linear-gradient(90deg,#BFD6FF,#CDEEDC,#F8C9DF);transition:width .35s ease;border-radius:999px}
+.progress .dots{position:absolute;inset:0;display:flex;gap:6px;justify-content:center;align-items:center;opacity:.7}
+.progress .dots span{font-size:12px;line-height:10px}
+.qhead{display:flex;align-items:center;justify-content:space-between;gap:10px;margin:4px 0 10px}
+.qnum{font-weight:800;background:#F4F6FF;color:#1F2937;border:1px solid var(--line);border-radius:999px;padding:4px 10px}
+.qtxt{font-size:18px;font-weight:700}
+.options{display:grid;grid-template-columns:1fr;gap:10px;margin:12px 0}
+@media(min-width:560px){.options{grid-template-columns:repeat(5,1fr)}}
+.opt{border:1px solid var(--line);border-radius:12px;padding:14px 10px;text-align:center;cursor:pointer;user-select:none;display:grid;gap:6px;align-content:center;min-height:68px;background:#fff;transition:border-color .12s, box-shadow .12s, transform .08s}
+.opt:active{transform:scale(.99)} .opt .emo{display:none} .opt .lbl{font-size:13px;color:#374151}
+input[type=radio]{position:absolute;opacity:0;pointer-events:none}
+.selected{border-color:var(--accent);box-shadow:0 0 0 3px rgba(158,197,254,.35)}
+
+.badge{display:inline-block;border:1px solid var(--line);background:#F4F6FF;color:#111827;border-radius:999px;padding:4px 10px;font-weight:700;font-size:12px}
+.title{font-weight:800;font-size:18px;background:#F4F6FF;padding:6px 10px;border-radius:10px;display:inline-block}
+.grid{display:grid;gap:12px}
+@media(min-width:860px){.grid{grid-template-columns:1.1fr .9fr}}
+
+.meter-label{display:flex;align-items:center;justify-content:space-between;font-size:13px;color:#374151}
+.meter{height:12px;background:#F4F6FA;border:1px solid var(--line);border-radius:999px;overflow:hidden}
+.meter>i{display:block;height:100%;background:linear-gradient(90deg,#8FB6FF,#CDEEDC);width:0}
+.scale-box{background:#fff;border:1px solid var(--line);border-radius:12px;padding:12px;box-shadow:var(--shadow)}
+.scale-row{display:grid;grid-template-columns:160px 1fr 46px;align-items:center;gap:8px;margin:6px 0}
+.scale-name{font-size:13px;color:#374151}
+.scale-bar{height:8px;background:#F4F6FA;border:1px solid var(--line);border-radius:999px;overflow:hidden}
+.scale-bar>i{display:block;height:100%;background:#9EC5FE;width:0}
+
+.card-list{display:grid;gap:10px;margin-top:10px}
+.card-i{background:#fff;border:1px solid var(--line);border-radius:12px;padding:12px;box-shadow:var(--shadow);display:grid;gap:6px}
+.fit{font-weight:800}
+.pills{display:flex;gap:6px;flex-wrap:wrap}
+.pill{border:1px solid var(--line);border-radius:999px;padding:4px 8px;background:#FAFBFF;font-size:12px}
+.kws{color:#374151;font-size:13px}
+.note{color:#374151;font-size:12px}
+.mute{color:var(--muted);font-size:12px}
+.answers{margin-top:14px;font-size:14px;color:#444}
+.answers details{background:#FAFBFF;border-radius:12px;padding:10px;border:1px solid var(--line)}
+.answers summary{cursor:pointer;font-weight:700}
+.answers ol{margin:8px 0 0 18px}.answers li{margin:4px 0}
+footer{margin-top:18px;color:var(--muted);font-size:12px;text-align:center}
+a{color:#1D6AE5;text-decoration:none}
+@media(prefers-reduced-motion: reduce){.btn,.bar{transition:none}}
+</style>
+</head>
+<body>
+<div class="wrap">
+  <header>
+    <div class="brand-badge"><span>CF20</span></div>
+    <div>
+      <div class="brand">就活診断 Pro｜Career Fit + 20年プラン</div>
+      <div class="sub">フィット×到達可能性で**現実解**を提示。隠れ優良候補も。全48問・所要10〜15分</div>
+    </div>
+  </header>
+
+  <!-- START -->
+  <section id="screen-start" class="screen active">
+    <div class="card hero">
+      <div class="start-art" aria-hidden="true"></div>
+      <h1>大手だけが正解じゃない。あなたの“勝ち筋”を可視化</h1>
+      <p>適性（36問）＋到達可能性（12問）→ 業界TOP3と**隠れチャンピオン**候補、さらに**20年のキャリア設計**まで。</p>
+      <p class="mute">※ 自己チェック（エンタメ）です。企業例は候補の一例で、募集や要件は必ず各社の最新情報をご確認ください。データ保存は行いません。</p>
+      <div class="actions">
+        <button class="btn" id="btnStart">診断をはじめる</button>
+        <button class="btn ghost" id="btnAbout">説明を読む</button>
+      </div>
+    </div>
+  </section>
+
+  <!-- QUIZ -->
+  <section id="screen-quiz" class="screen">
+    <div class="card">
+      <div class="toolbar">
+        <div class="mute">タップすると次へ（全48問）</div>
+        <button class="quit" id="btnQuit" title="スタートに戻る">× 閉じる</button>
+      </div>
+      <div class="progress" aria-hidden="true">
+        <div class="bar" id="bar" style="width:0%"></div>
+        <div class="dots" id="dots" aria-hidden="true"></div>
+      </div>
+      <div class="qhead">
+        <div class="qnum" id="qnum">Q1/48</div>
+        <div class="mute" id="assist" aria-live="polite"></div>
+      </div>
+      <div class="qtxt" id="qtxt">質問テキスト</div>
+      <form id="form" class="options" aria-describedby="assist"><!-- injected --></form>
+    </div>
+  </section>
+
+  <!-- RESULT -->
+  <section id="screen-result" class="screen">
+    <div class="card">
+      <div class="badge" id="badge">結果</div>
+      <h2 class="title" id="resTitle">あなたに合いそうな業界TOP3</h2>
+
+      <div class="grid" style="margin-top:10px">
+        <div>
+          <div id="industryList" class="card-list"><!-- top3 injected --></div>
+
+          <div class="card-i" id="hiddenBox" style="display:none">
+            <b>“隠れチャンピオン”候補（大手と同等に戦える土台づくりに）</b>
+            <div id="hiddenList" class="pills" style="margin-top:6px"></div>
+            <div class="note">※ B2B比率が高く一般知名度が低めでも、技術・収益力・シェアで強い企業群の例です。</div>
+          </div>
+
+          <div class="card-i">
+            <b>20年キャリアのざっくり設計</b>
+            <ol class="steps" id="plan"></ol>
+            <div class="actions" style="justify-content:flex-start;margin-top:8px">
+              <button class="copy" id="btnCopy">結果メモをコピー</button>
+              <button class="btn ghost" id="btnRetry">もう一度やる</button>
+            </div>
+            <p class="mute" style="margin-top:8px">※ 企業例は候補の一例。募集の有無・要件は必ず各社の最新情報でご確認ください。</p>
+          </div>
+        </div>
+
+        <div class="scale-box">
+          <div class="meter-label"><span>総合マッチ（TOP3平均）</span><b id="fitVal">0%</b></div>
+          <div class="meter"><i id="fitBar"></i></div>
+
+          <div class="meter-label" style="margin-top:10px"><span>到達可能性（あなたのシグナル）</span><b id="fzVal">0%</b></div>
+          <div class="meter"><i id="fzBar"></i></div>
+
+          <div class="mute" style="margin-top:10px">適性9スケール（0〜4）</div>
+          <div class="scale-row"><div class="scale-name">裁量（自律性）</div><div class="scale-bar"><i id="sAut"></i></div><div id="vAut">0.0</div></div>
+          <div class="scale-row"><div class="scale-name">対人←→対物</div><div class="scale-bar"><i id="sPeo"></i></div><div id="vPeo">0.0</div></div>
+          <div class="scale-row"><div class="scale-name">変化志向</div><div class="scale-bar"><i id="sChg"></i></div><div id="vChg">0.0</div></div>
+          <div class="scale-row"><div class="scale-name">創造（0→1）</div><div class="scale-bar"><i id="sCre"></i></div><div id="vCre">0.0</div></div>
+          <div class="scale-row"><div class="scale-name">分析・検証</div><div class="scale-bar"><i id="sAna"></i></div><div id="vAna">0.0</div></div>
+          <div class="scale-row"><div class="scale-name">プロジェクト志向</div><div class="scale-bar"><i id="sPro"></i></div><div id="vPro">0.0</div></div>
+          <div class="scale-row"><div class="scale-name">挑戦（リスク許容）</div><div class="scale-bar"><i id="sRsk"></i></div><div id="vRsk">0.0</div></div>
+          <div class="scale-row"><div class="scale-name">グローバル志向</div><div class="scale-bar"><i id="sGlo"></i></div><div id="vGlo">0.0</div></div>
+          <div class="scale-row"><div class="scale-name">大企業志向</div><div class="scale-bar"><i id="sBig"></i></div><div id="vBig">0.0</div></div>
+        </div>
+      </div>
+
+      <div class="answers">
+        <details>
+          <summary>あなたの回答（タップで開く）</summary>
+          <ol id="answerList"></ol>
+        </details>
+      </div>
+    </div>
+  </section>
+
+  <footer>© 2025 Career Fit Navigator Pro – 自己チェック（エンタメ）。データ保存なし。</footer>
+</div>
+
+<script>
+"use strict";
+
+/* =================== 質問セット =================== */
+/* 適性36問（前作ベース） + 到達可能性12問の計48問 */
+const Q_FIT = [ // 36問・9スケール×4（AUT,PEO,CHG,CRE,ANA,PRO,RSK,GLO,BIG）
+  {text:"ルールが少ない環境でも自分で動ける", reverse:false},
+  {text:"手順が整った環境の方が力を出しやすい", reverse:true},
+  {text:"上司の細かな指示がなくても前へ進める", reverse:false},
+  {text:"正解がひとつより、自分で設計する方が好き", reverse:false},
+
+  {text:"初対面からニーズを引き出す会話が得意", reverse:false},
+  {text:"データやモノ相手の作業の方が集中できる", reverse:true},
+  {text:"チーム前で話すことに抵抗が少ない", reverse:false},
+  {text:"顧客の感情の変化に敏感だと感じる", reverse:false},
+
+  {text:"仕様変更や予定変更はむしろ燃える", reverse:false},
+  {text:"一定のリズムで同じ仕事を積み上げたい", reverse:true},
+  {text:"未開拓の領域を試すのが好き", reverse:false},
+  {text:"変化が少ない環境だと退屈しやすい", reverse:false},
+
+  {text:"0→1の企画を考えるのが好き", reverse:false},
+  {text:"新しいアイデアのメモがたくさんある", reverse:false},
+  {text:"デザインや体験の質にこだわる", reverse:false},
+  {text:"既存プロセスの改善より新規構築が楽しい", reverse:false},
+
+  {text:"データを集めて仮説検証するのが得意", reverse:false},
+  {text:"エクセル/SQL/統計に興味がある", reverse:false},
+  {text:"数字で語るレポートが好き", reverse:false},
+  {text:"定量指標で成果を測るべきだと思う", reverse:false},
+
+  {text:"不確実でも前に進めるタイプだ", reverse:false},
+  {text:"多方面の調整をするのが苦にならない", reverse:false},
+  {text:"細かな反復作業よりプロジェクトが好き", reverse:false},
+  {text:"運用・保守を丁寧に回す方が得意だ", reverse:true},
+
+  {text:"小さくリスクを取り学ぶのが性に合う", reverse:false},
+  {text:"安定重視で挑戦は最小限にしたい", reverse:true},
+  {text:"数値目標のプレッシャーに耐えられる", reverse:false},
+  {text:"収入が上下しても成長機会を優先したい", reverse:false},
+
+  {text:"英語での読み書き/会話に前向きだ", reverse:false},
+  {text:"海外の人との協働にわくわくする", reverse:false},
+  {text:"海外出張や駐在に興味がある", reverse:false},
+  {text:"英語ニュースや論文を日常的に読む", reverse:false},
+
+  {text:"大企業の安定や制度に魅力を感じる", reverse:false},
+  {text:"会社の知名度やブランドを重視する", reverse:false},
+  {text:"小規模でも裁量が大きい方がいい", reverse:true},
+  {text:"変化が速いベンチャー文化に惹かれる", reverse:true},
+];
+
+const Q_FZ = [ // 到達可能性（12問／0..4で自己申告）
+  {text:"学業実績（学年/大学帯の自己評価）", note:"上位難関→高、平均→中、やや不利→低", key:"acad"},
+  {text:"GPAまたは成績の自己評価", key:"gpa"},
+  {text:"英語力（TOEIC/会話など総合自己評価）", key:"eng"},
+  {text:"プログラミング/デザイン等ポートフォリオ", key:"port"},
+  {text:"インターン/長期実務（累計期間）", key:"intern"},
+  {text:"課外でのリーダー経験/受賞・発表", key:"lead"},
+  {text:"勤務地の柔軟性（全国/海外含む）", key:"mob"},
+  {text:"勤務時間への柔軟性（繁忙・不規則に耐性）", key:"hrs"},
+  {text:"早期から就活準備（情報収集・練習・ES）", key:"early"},
+  {text:"志望がB2B中心か（B2Cにこだわらない）", key:"b2b"},
+  {text:"第一志望業界への下位互換職でも入れる覚悟", key:"stepin"},
+  {text:"地元/地方中堅も選択肢（転機で都市圏へ）", key:"local"},
+];
+
+const QUESTIONS = [...Q_FIT, ...Q_FZ];
+
+/* 選択肢（0..4） */
+const CHOICES = [
+  {label:"まったくない", value:0},
+  {label:"あまりない",   value:1},
+  {label:"どちらとも",   value:2},
+  {label:"ややある",     value:3},
+  {label:"とてもある",   value:4},
+];
+
+/* スケールのインデックス */
+const IDX = {
+  AUT:[0,1,2,3], PEO:[4,5,6,7], CHG:[8,9,10,11], CRE:[12,13,14,15],
+  ANA:[16,17,18,19], PRO:[20,21,22,23], RSK:[24,25,26,27],
+  GLO:[28,29,30,31], BIG:[32,33,34,35],
+};
+const FZ_IDX = { // 到達可能性の質問は末尾12問（36〜47）
+  acad:36, gpa:37, eng:38, port:39, intern:40, lead:41, mob:42, hrs:43, early:44, b2b:45, stepin:46, local:47
+};
+
+/* =================== 業界プロファイル =================== */
+/* 9次元ベクトル w（0..4）と、入社難易度（threshold 2.0〜3.6目安） */
+const INDUSTRIES = [
+  {slug:"consulting", name:"コンサル（戦略/総合）",
+   w:[3.5,3.5,3.8,3.0,3.8,3.8,3.2,3.2,3.2], threshold:3.3,
+   examples:["マッキンゼー","BCG","ベイン","アクセンチュア","デロイト","PwC","KPMG","EY"],
+   hidden:["船井総研","山田コンサル","日本能率協会コンサル","アーサー・ディ・リトル(日本)","QUICK(データ×調査)"]},
+  {slug:"trading", name:"総合商社",
+   w:[3.2,3.6,3.6,2.5,3.0,3.7,3.5,3.8,3.6], threshold:3.2,
+   examples:["三菱商事","三井物産","伊藤忠商事","住友商事","丸紅","双日","豊田通商"],
+   hidden:["阪和興業","メタルワン","三菱食品","伊藤忠エネクス","兼松"]},
+  {slug:"internet", name:"インターネット/メガベンチャー",
+   w:[3.6,3.0,3.8,3.6,3.2,3.6,3.6,2.8,1.8], threshold:3.0,
+   examples:["楽天グループ","サイバーエージェント","メルカリ","DeNA","リクルート","Sansan","freee"],
+   hidden:["ラクス","HENNGE","ユーザベース","マネーフォワード","プレイド","PR TIMES","はてな"]},
+  {slug:"bigtech", name:"外資BigTech（日本）",
+   w:[3.4,2.8,3.8,3.4,3.6,3.4,3.2,3.4,2.4], threshold:3.4,
+   examples:["Google","Amazon","Microsoft","Apple","Meta"],
+   hidden:["Datadog","Snowflake","Cloudflare","ServiceNow","Atlassian"]},
+  {slug:"bank", name:"メガバンク/銀行",
+   w:[1.8,2.8,1.8,1.8,3.8,2.6,1.8,2.2,3.8], threshold:2.6,
+   examples:["三菱UFJ銀行","三井住友銀行","みずほ銀行","りそな銀行","住信SBI"],
+   hidden:["地銀上位(横浜/千葉/福岡等)","信金中金","農林中金","日本政策投資銀行"]},
+  {slug:"securities", name:"証券/投資銀行・AM",
+   w:[2.8,3.2,3.2,2.0,3.8,3.4,3.4,2.6,3.2], threshold:3.0,
+   examples:["野村證券","大和証券","SMBC日興","三菱UFJモルガン・スタンレー","GS","JPM"],
+   hidden:["ニッセイAM","大和アセマネ","アセマネOne","SBI証券","マネックス"]},
+  {slug:"telecom", name:"通信キャリア",
+   w:[2.2,2.6,2.2,2.0,3.2,3.0,2.2,2.0,3.6], threshold:2.3,
+   examples:["NTTドコモ","KDDI","ソフトバンク","楽天モバイル"],
+   hidden:["NTTコミュニケーションズ","IIJ","ソフトバンクテクノロジー","NECネッツエスアイ"]},
+  {slug:"auto", name:"自動車/機械",
+   w:[2.0,2.2,2.2,1.8,3.4,3.0,2.2,2.0,3.6], threshold:2.5,
+   examples:["トヨタ","ホンダ","日産","マツダ","SUBARU","スズキ","いすゞ"],
+   hidden:["DMG森精機","オークマ","CKD","SMC","THK","ナブテスコ","日本特殊陶業"]},
+  {slug:"electronics", name:"電機/ICTメーカー",
+   w:[2.2,2.4,2.6,2.2,3.4,3.0,2.4,2.2,3.2], threshold:2.5,
+   examples:["ソニーグループ","パナソニック","日立製作所","三菱電機","富士通","NEC","東芝"],
+   hidden:["村田製作所","ローム","浜松ホトニクス","SCREEN","ニチコン","イビデン","アルプスアルパイン"]},
+  {slug:"pharma", name:"医薬/ヘルスケア",
+   w:[2.2,2.6,2.0,2.0,3.6,2.6,1.8,2.0,3.2], threshold:2.7,
+   examples:["武田薬品","アステラス","第一三共","中外製薬","エーザイ","塩野義","大塚製薬"],
+   hidden:["テルモ","ニプロ","オリンパス(医療)","HOYA","シスメックス","佐藤製薬"]},
+  {slug:"cpggoods", name:"消費財/食品・日用品",
+   w:[2.4,3.0,2.4,2.6,2.6,2.8,2.2,1.8,3.2], threshold:2.6,
+   examples:["資生堂","花王","ユニ・チャーム","サントリー","キリン","アサヒ","明治","日清食品"],
+   hidden:["ホシザキ","リンナイ","象印","タイガー","不二製油","日東電工(資材)"]},
+  {slug:"games", name:"ゲーム/エンタメ",
+   w:[3.0,2.6,3.4,3.8,2.8,3.0,3.0,2.0,2.2], threshold:2.9,
+   examples:["任天堂","バンダイナムコ","スクウェア・エニックス","カプコン","セガ","コナミ","SIE"],
+   hidden:["コロプラ","gumi","KLab","グリー","WFS","アカツキ"]},
+  {slug:"infra", name:"鉄道/航空/物流",
+   w:[1.8,2.4,1.8,1.8,2.8,3.2,1.8,1.6,3.6], threshold:2.3,
+   examples:["JR東日本","JR東海","JR西日本","ANA","JAL","ヤマト運輸","佐川急便"],
+   hidden:["日本郵便","東京地下鉄","小田急/東急グループ","日本通運"]},
+  {slug:"public", name:"公共/教育/NPO",
+   w:[2.0,3.0,1.6,2.2,2.6,2.4,1.4,1.6,3.4], threshold:2.0,
+   examples:["自治体/独法/教員/NPO 等"],
+   hidden:["学校法人職員","大学事務/URA","地域金融×公的連携"]}
+];
+
+/* =================== ロジック =================== */
+let current = 0, transitioning = false;
+const answers = Array(QUESTIONS.length).fill(null);
+const $ = s=>document.querySelector(s);
+const el = (t,a={}) => Object.assign(document.createElement(t), a);
+
+function show(id){ document.querySelectorAll(".screen").forEach(s=>s.classList.remove("active")); $(id).classList.add("active"); window.scrollTo({top:0,behavior:"smooth"}); }
+function updateProgress(){
+  const answered = answers.filter(a=>a!==null).length;
+  const pct = Math.round(100 * answered / QUESTIONS.length);
+  $("#bar").style.width = pct + "%";
+  $("#qnum").textContent = `Q${current+1}/${QUESTIONS.length}`;
+  const d = $("#dots"); d.innerHTML=""; for(let i=0;i<QUESTIONS.length;i++){ const s=el("span"); s.textContent="•"; s.style.opacity = i<answered? "1":".25"; d.appendChild(s); }
+}
+function renderQuestion(){
+  const q = QUESTIONS[current];
+  $("#qtxt").textContent = q.text;
+  $("#assist").textContent = current>=36 ? "到達可能性（自己申告）" : "適性（タップで次へ）";
+  const form = $("#form"); form.innerHTML = "";
+  CHOICES.forEach((c,idx)=>{
+    const id = `q${current}c${idx}`;
+    const input = el("input",{type:"radio",name:"q",id,value:String(c.value)});
+    const label = el("label",{className:"opt", htmlFor:id});
+    label.innerHTML = `<div class="emo"></div><div class="lbl">${c.label}</div>`;
+    const wrap = el("div",{}); wrap.appendChild(input); wrap.appendChild(label); form.appendChild(wrap);
+    const choose = ()=>{
+      if(transitioning) return;
+      transitioning = true; answers[current] = Number(c.value); label.classList.add("selected");
+      setTimeout(()=>{ if(current<QUESTIONS.length-1){ current++; renderQuestion(); transitioning=false; } else { renderResult(); show("#screen-result"); transitioning=false; } }, 140);
+    };
+    label.addEventListener("click", choose); input.addEventListener("change", choose);
+  }); updateProgress();
+}
+
+/* スコア計算 */
+function orientedVal(i, raw){ const q = QUESTIONS[i]; return q.reverse ? (4 - raw) : raw; }
+function avg(arr){ return arr.reduce((a,b)=>a+b,0) / arr.length; }
+
+function getFitVector(){
+  const filled = answers.map(v => (v==null? 2 : v));
+  const v = {
+    AUT:avg(IDX.AUT.map(i=>orientedVal(i,filled[i]))),
+    PEO:avg(IDX.PEO.map(i=>orientedVal(i,filled[i]))),
+    CHG:avg(IDX.CHG.map(i=>orientedVal(i,filled[i]))),
+    CRE:avg(IDX.CRE.map(i=>orientedVal(i,filled[i]))),
+    ANA:avg(IDX.ANA.map(i=>orientedVal(i,filled[i]))),
+    PRO:avg(IDX.PRO.map(i=>orientedVal(i,filled[i]))),
+    RSK:avg(IDX.RSK.map(i=>orientedVal(i,filled[i]))),
+    GLO:avg(IDX.GLO.map(i=>orientedVal(i,filled[i]))),
+    BIG:avg(IDX.BIG.map(i=>orientedVal(i,filled[i]))),
+  };
+  return {v, filled};
+}
+function getFZ(){ // 到達可能性 0..100
+  const g = k => (answers[FZ_IDX[k]] ?? 2);
+  // 重み：学業/英語/ポートフォリオ/インターンはやや重め
+  const w = {acad:1.2,gpa:1.0,eng:1.1,port:1.2,intern:1.1,lead:1.0,mob:0.8,hrs:0.6,early:0.8,b2b:0.7,stepin:0.9,local:0.8};
+  let num=0, den=0; for(const k in w){ num += (g(k)*w[k]); den += (4*w[k]); }
+  const ratio = num/den; // 0..1
+  return Math.round(ratio*100);
+}
+function cosine(u, v){
+  let dot=0, nu=0, nv=0;
+  for(let i=0;i<u.length;i++){ dot+=u[i]*v[i]; nu+=u[i]*u[i]; nv+=v[i]*v[i]; }
+  if(nu===0||nv===0) return 0;
+  return dot / Math.sqrt(nu*nv);
+}
+
+/* マッチング：Fit × Feasibility補正（難易度threshold） */
+function scoreIndustries(){
+  const {v} = getFitVector();
+  const user = [v.AUT,v.PEO,v.CHG,v.CRE,v.ANA,v.PRO,v.RSK,v.GLO,v.BIG];
+  const fz = getFZ(); // 0..100
+
+  const scored = INDUSTRIES.map(ind=>{
+    const fit = cosine(user, ind.w); // 0..1
+    // 到達可能性補正：あなたのFZが閾値をどれだけ満たすか（0.7〜1.3倍）
+    const fzScaled = fz/100*4; // 0..4換算
+    const factor = Math.max(0.7, Math.min(1.3, Math.pow( (fzScaled / ind.threshold), 0.7 )));
+    const opp = fit * factor; // 総合スコア
+    return {...ind, fit, factor, opp, simPct:Math.round(fit*100)};
+  }).sort((a,b)=>b.opp-a.opp);
+
+  return {scored, fz, v};
+}
+
+/* 20年プラン生成（0–2 / 3–5 / 6–10 / 11–20年） */
+function planFor(top, v, fz){
+  const lines=[];
+  const strong = (k)=>v[k]>=3.2;
+  const mid = (k)=>v[k]>=2.6;
+
+  // 0–2年：入口の作り方
+  let entry = "0–2年：";
+  if(strong("PEO") && strong("PRO")) entry += "顧客前線/調整の多い役割（法人営業/CS/PM補佐）で土台づくり。";
+  else if(strong("CRE")) entry += "企画/プロダクト/マーケのアシスタントで0→1の現場に触れる。";
+  else if(strong("ANA")) entry += "データ/リサーチ/業務改善の定量で信頼を獲得。";
+  else entry += "配属先でKPIと作業品質を安定させ、職種横断の“強みの芯”を探る。";
+  entry += " インターンや副業で“外の基準”にも触れておく。";
+  lines.push(entry);
+
+  // 3–5年：スケールアップ
+  let grow = "3–5年：";
+  if(strong("PRO")) grow += "小中規模プロジェクトの主担当。定量で成果を見せ、横展開。";
+  else if(strong("CRE")) grow += "小さな企画を連続投入→勝ち筋の再現化。";
+  else if(strong("ANA")) grow += "データ×業務の二刀流（ダッシュボード/改善）。";
+  else grow += "領域の深掘り＋周辺スキルを一層。";
+  grow += " “次の社でも通じる実績タイトル”を1つ作る。";
+  lines.push(grow);
+
+  // 6–10年：転職/ピボット余地
+  let midc = "6–10年：";
+  if(top.slug==="consulting" || top.slug==="internet" || top.slug==="bigtech"){
+    midc += "事業責任/大型PM/スペシャリスト路線へ。転機で“より良い土俵”へのスイッチも。";
+  }else if(top.slug==="bank" || top.slug==="telecom" || top.slug==="infra" || top.slug==="public"){
+    midc += "社内異動で攻め領域へ or 同業他社で新領域へ。資格/英語で可搬性を上げる。";
+  }else{
+    midc += "周辺領域（SaaS/データ/プロダクト）との橋渡しで市場価値を上げる。";
+  }
+  lines.push(midc);
+
+  // 11–20年：上位役割へ
+  let senior = "11–20年：";
+  if(strong("PRO") && strong("PEO")) senior += "プロダクト/事業の責任者 or コンサルのパートナー級へ。";
+  else if(strong("ANA")) senior += "データ/アーキ/研究のリードへ（社内外で講演/執筆）。";
+  else if(strong("CRE")) senior += "ブランド/顧客体験の統括。";
+  else senior += "専門×マネジメントの掛け算で安定的に影響範囲を拡大。";
+  senior += " ワーク/ライフ設計と健康のメンテを恒常化。";
+  lines.push(senior);
+
+  // ルート調整
+  if(fz < 55){
+    lines.unshift("スタートは“入りやすい土俵”でOK：下位互換職/地域×中堅から始め、2〜3年で土台を作ってステップアップ。");
+  } else if(fz >= 75){
+    lines.unshift("早期から上位社にも挑戦可：外資/上位大手＋成長SaaSの両面作戦で確率を上げる。");
+  }
+
+  return lines;
+}
+
+/* UI反映ユーティリティ */
+function pct(x){ return Math.max(0, Math.min(100, Math.round(x))); }
+function setBar(id, val){ $(id).style.width = Math.round(val/4*100) + "%"; $(id.replace("s","v")).textContent = val.toFixed(1); }
+
+/* 結果描画 */
+function renderResult(){
+  const {scored, fz, v} = scoreIndustries();
+  const top3 = scored.slice(0,3);
+  const list = $("#industryList"); list.innerHTML = "";
+
+  top3.forEach(ind=>{
+    const card = el("div",{className:"card-i"});
+    const title = el("div",{innerHTML:`<span class="fit">${ind.name}</span>　総合スコア：<b>${Math.round(ind.opp*100)}%</b>（マッチ度${Math.round(ind.fit*100)}% × 到達係数${ind.factor.toFixed(2)}）`});
+    const desc = el("div",{className:"mute",textContent:ind.desc || ""});
+    const pills = el("div",{className:"pills"});
+    (ind.examples||[]).forEach(co=>{
+      const a = document.createElement("a");
+      a.textContent = co; a.className = "pill";
+      a.href = `https://www.google.com/search?q=${encodeURIComponent(co + " 新卒 採用")}`;
+      a.target = "_blank"; a.rel="noopener"; pills.appendChild(a);
+    });
+    const kws = el("div",{className:"kws"});
+    const roles = [];
+    if(v.PEO>=3 && v.PRO>=3) roles.push("コンサル/PM/法人営業");
+    if(v.CRE>=3 && v.PRO>=2.6) roles.push("企画/プロダクト/マーケ");
+    if(v.ANA>=3) roles.push("データ/アナリスト/リサーチ");
+    if(v.ANA>=3.1 && v.CRE>=2.5) roles.push("エンジニア/DS");
+    if(v.BIG>=3.1) roles.push("大手企画/管理");
+    if(v.BIG<2 && v.AUT>=3) roles.push("スタートアップ/新規事業");
+    kws.textContent = "おすすめ職種キーワード： " + (roles.length? roles.join("・") : "バランス型（広めに探索）");
+
+    card.appendChild(title); card.appendChild(desc); card.appendChild(pills); card.appendChild(kws);
+    list.appendChild(card);
+  });
+
+  // 隠れチャンピオン候補：上位業界のhiddenを中心に、FZが閾値未満の産業から優先提示
+  const hidden = [];
+  top3.forEach(ind=>{
+    const needHidden = (fz/100*4) < ind.threshold + 0.2; // 閾値を少し下回るなら積極提案
+    if(needHidden && ind.hidden){ hidden.push(...ind.hidden.map(name=>({name, from:ind.name}))); }
+  });
+  const hiddenBox = $("#hiddenBox"), hiddenList=$("#hiddenList");
+  hiddenList.innerHTML = "";
+  if(hidden.length){
+    // ユニーク化して最大12件
+    const seen=new Set();
+    hidden.filter(h=>{ if(seen.has(h.name)) return false; seen.add(h.name); return true; })
+          .slice(0,12)
+          .forEach(h=>{
+            const a = document.createElement("a");
+            a.textContent = `${h.name}`; a.className="pill";
+            a.href = `https://www.google.com/search?q=${encodeURIComponent(h.name + " 会社 採用")}`;
+            a.target="_blank"; a.rel="noopener"; hiddenList.appendChild(a);
+          });
+    hiddenBox.style.display="";
+  }else{
+    hiddenBox.style.display="none";
+  }
+
+  // 総合マッチと到達可能性メータ
+  const fitAvg = top3.reduce((a,b)=>a+b.fit,0)/top3.length;
+  $("#fitVal").textContent = Math.round(fitAvg*100) + "%";
+  $("#fitBar").style.width = Math.round(fitAvg*100) + "%";
+  $("#fzVal").textContent = fz + "%";
+  $("#fzBar").style.width = fz + "%";
+
+  // 9スケール表示
+  setBar("#sAut", v.AUT); setBar("#sPeo",v.PEO); setBar("#sChg",v.CHG); setBar("#sCre",v.CRE);
+  setBar("#sAna", v.ANA); setBar("#sPro",v.PRO); setBar("#sRsk",v.RSK); setBar("#sGlo",v.GLO); setBar("#sBig",v.BIG);
+
+  // 20年プラン
+  const plan = $("#plan"); plan.innerHTML="";
+  const planLines = planFor(top3[0], v, fz);
+  planLines.forEach(t=>{ const li = el("li"); li.textContent = t; plan.appendChild(li); });
+
+  // 回答リスト
+  const ol = $("#answerList"); ol.innerHTML="";
+  QUESTIONS.forEach((q,i)=>{
+    const li = el("li");
+    const a = answers[i]; const label = (a==null) ? "未回答" : CHOICES[a].label;
+    li.textContent = `${i+1}. ${q.text} … 「${label}」`;
+    ol.appendChild(li);
+  });
+
+  $("#badge").textContent = "業界マッチ結果 + 20年プラン";
+}
+
+/* スタート/イベント */
+function start(){
+  for(let i=0;i<answers.length;i++) answers[i]=null;
+  current=0; transitioning=false; show("#screen-quiz"); renderQuestion();
+}
+$("#btnStart").addEventListener("click", start);
+$("#btnAbout").addEventListener("click", ()=>{
+  alert("適性ベクトル（9スケール）と、到達可能性シグナル（12問）を掛け合わせ、業界TOP3を現実的に提案します。企業例は候補の一例です。募集や要件は各社の最新情報をご確認ください。");
+});
+$("#btnQuit").addEventListener("click", ()=> show("#screen-start"));
+$("#btnRetry").addEventListener("click", start);
+$("#btnCopy").addEventListener("click", async ()=>{
+  try{
+    const {scored, fz, v} = scoreIndustries();
+    const top3 = scored.slice(0,3).map(s=>s.name).join(" / ");
+    const txt = [
+      "【就活診断Pro 結果メモ】",
+      `TOP3: ${top3}`,
+      `適性 AUT:${v.AUT.toFixed(1)} PEO:${v.PEO.toFixed(1)} CHG:${v.CHG.toFixed(1)} CRE:${v.CRE.toFixed(1)} ANA:${v.ANA.toFixed(1)} PRO:${v.PRO.toFixed(1)} RSK:${v.RSK.toFixed(1)} GLO:${v.GLO.toFixed(1)} BIG:${v.BIG.toFixed(1)}`,
+      `到達可能性: ${fz}%`,
+      "企業例は画面のリンクから最新情報を確認"
+    ].join("\n");
+    await navigator.clipboard.writeText(txt);
+    alert("結果メモをクリップボードにコピーしました。");
+  }catch(e){ prompt("コピーできない場合は手動で選択してコピーしてください", "就活診断Pro 結果"); }
+});
+
+/* 初期化 */
+(function initDots(){ const d=$("#dots"); d.innerHTML=""; for(let i=0;i<QUESTIONS.length;i++){ const s=el("span"); s.textContent="•"; s.style.opacity=".25"; d.appendChild(s); }})();
+</script>
+</body>
+</html>
