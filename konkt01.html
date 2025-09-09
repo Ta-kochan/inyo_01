@@ -1,0 +1,694 @@
+<!doctype html>
+<html lang="ja">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<meta name="theme-color" content="#F7F8FC">
+<title>婚活診断 Pro｜シビア版（偏差値＝μ50/σ10／結婚観1問1答）</title>
+<style>
+:root{
+  --bg:#F7F8FC; --bg2:#F4F2F7; --card:#FFFFFF; --ink:#0F172A; --muted:#6B7280; --line:#E5E7EB;
+  --accent:#9EC5FE; --accent2:#B7EBD3; --accent3:#F7B8D9; --ok:#10B981; --warn:#F59E0B; --danger:#EF4444;
+  --shadow:0 3px 16px rgba(17,24,39,.08); --r:12px; --rL:16px;
+}
+*{box-sizing:border-box} html,body{height:100%}
+body{margin:0;background:linear-gradient(180deg,var(--bg) 0%,var(--bg2) 100%);color:var(--ink);font-family:-apple-system,BlinkMacSystemFont,"Segoe UI","Hiragino Sans","Noto Sans JP","Yu Gothic",Meiryo,system-ui,sans-serif;line-height:1.65}
+.wrap{max-width:1100px;margin:0 auto;padding:18px 16px 28px}
+header{display:flex;gap:12px;align-items:center}
+.brand-badge{width:44px;height:44px;border-radius:10px;background:#fff;border:1px solid var(--line);display:grid;place-items:center;box-shadow:var(--shadow);font-weight:800;color:#334155}
+h1{font-size:20px;margin:0}
+.sub{font-size:12px;color:#6B7280;margin-top:2px}
+.card{background:var(--card);border:1px solid var(--line);border-radius:var(--rL);box-shadow:var(--shadow);padding:18px}
+.screen{display:none}.screen.active{display:block}
+a{color:#1764D3;text-decoration:none}
+.btn{appearance:none;border:1px solid var(--line);border-radius:12px;padding:12px 14px;font-weight:700;cursor:pointer;background:linear-gradient(180deg,#A8C5FF,var(--accent));color:#fff;box-shadow:0 1px 2px rgba(17,24,39,.08);transition:.15s transform}
+.btn:hover{transform:translateY(-1px)} .btn.ghost{background:#fff;color:#111}
+.badge{display:inline-block;padding:4px 10px;border-radius:999px;border:1px solid var(--line);background:#F4F6FF;font-weight:700;font-size:12px}
+.grid2{display:grid;gap:10px}@media(min-width:860px){.grid2{grid-template-columns:1.05fr .95fr}}
+.formgrid3{display:grid;gap:10px}@media(min-width:860px){.formgrid3{grid-template-columns:repeat(3,1fr)}}
+.formgrid2{display:grid;gap:10px}@media(min-width:680px){.formgrid2{grid-template-columns:repeat(2,1fr)}}
+.field{display:grid;gap:6px}
+.field label{font-size:13px;color:#374151}
+.field input,.field select{padding:10px;border:1px solid var(--line);border-radius:10px;background:#fff;font-size:15px}
+.checkrow{display:flex;align-items:center;gap:8px}
+.help{font-size:12px;color:#6B7280}
+.meter{height:12px;background:#F4F6FA;border:1px solid var(--line);border-radius:999px;overflow:hidden}
+.meter>i{display:block;height:100%;background:linear-gradient(90deg,#8FB6FF,#CDEEDC);width:0}
+.kpi{display:grid;gap:8px}
+.kpi-row{display:grid;grid-template-columns:160px 1fr 54px;gap:8px;align-items:center}
+.kpi-bar{height:8px;background:#F4F6FA;border:1px solid var(--line);border-radius:999px;overflow:hidden}
+.kpi-bar>i{display:block;height:100%;background:#9EC5FE;width:0}
+.cards{display:grid;gap:10px}
+.card-i{background:#fff;border:1px solid var(--line);border-radius:12px;padding:12px;box-shadow:var(--shadow)}
+.pills{display:flex;gap:6px;flex-wrap:wrap}
+.pill{border:1px solid var(--line);border-radius:999px;padding:4px 8px;background:#FAFBFF;font-size:12px}
+.copy{appearance:none;border:1px dashed var(--line);border-radius:10px;background:#fff;padding:8px 10px;cursor:pointer}
+hr{border:none;border-top:1px solid var(--line);margin:10px 0}
+.cam{display:grid;gap:6px;justify-items:center}
+.cam video{width:100%;max-width:340px;border:1px solid var(--line);border-radius:10px;background:#000}
+.attn{color:#9A3412}
+
+/* === 1問1答：選択肢ボタン === */
+.qwrap{display:grid;gap:10px}
+.qhead{display:flex;justify-content:space-between;align-items:center}
+.qtext{font-size:18px;font-weight:700;margin-top:2px}
+.choices{display:grid;gap:8px;grid-template-columns:1fr}
+@media(min-width:680px){.choices{grid-template-columns:repeat(2,1fr)}}
+.choice{display:block;width:100%;text-align:left;padding:12px;border:1px solid var(--line);border-radius:12px;background:#fff;cursor:pointer;font-weight:700}
+.choice small{display:block;color:#6B7280;font-weight:600}
+.choice:hover{transform:translateY(-1px)}
+.choice.selected{background:linear-gradient(180deg,#E9F1FF,#F2FFF6);border-color:#BFD7FF}
+.qnav{display:flex;gap:8px;justify-content:space-between;align-items:center;margin-top:6px}
+.qnav .left{display:flex;gap:8px;align-items:center}
+.qnav .right{display:flex;gap:8px;align-items:center}
+.link{appearance:none;background:none;border:none;color:#1764D3;cursor:pointer;padding:6px 8px;border-radius:8px}
+.link:disabled{color:#9CA3AF;cursor:not-allowed}
+</style>
+</head>
+<body>
+<div class="wrap">
+  <header>
+    <div class="brand-badge">MAP</div>
+    <div>
+      <h1>婚活診断 Pro｜シビア版（偏差値＝μ50/σ10／結婚観1問1答）</h1>
+      <div class="sub">成人向け・保存/送信なし。市場の傾向に合わせて<strong>厳しめ</strong>に判定します。</div>
+    </div>
+  </header>
+
+  <!-- START -->
+  <section id="s0" class="screen active">
+    <div class="card">
+      <div class="badge">ようこそ</div>
+      <p>まず<strong>自分のスペック</strong>を入力 → 次に<strong>相手に求めるスペック</strong>（重視のみ） → 最後に<strong>結婚観（1問1答で24問）</strong>。<br>婚活偏差値（MMI）・高望み判定・鍛える優先度・時間軸・相手ペルソナTOP3（文章カスタム）を提示します。</p>
+      <div class="formgrid2" style="margin-top:8px">
+        <div class="field"><label>あなたの性別</label><select id="selfSex"><option value="male">男性</option><option value="female">女性</option><option value="other">その他/回答しない</option></select></div>
+        <div class="field"><label>探している相手</label><select id="targetSex"><option value="women">女性</option><option value="men">男性</option><option value="any">どちらも/未定</option></select></div>
+      </div>
+      <div class="pills" style="margin-top:8px">
+        <span class="pill">男性：身長/学歴/年収を<strong>重め</strong></span>
+        <span class="pill">女性：顔/体型/年齢を<strong>重め</strong></span>
+        <span class="pill">MMIはμ50/σ10へ<strong>自動キャリブレーション</strong></span>
+      </div>
+      <div style="display:flex;gap:10px;justify-content:center;margin-top:10px">
+        <button class="btn" id="goSelf">自分のスペックへ</button>
+        <button class="btn ghost" id="about">説明</button>
+      </div>
+    </div>
+  </section>
+
+  <!-- SELF -->
+  <section id="s1" class="screen">
+    <div class="card">
+      <div class="badge">STEP 1</div>
+      <h2>自分のスペック（必須）</h2>
+      <div class="formgrid3" style="margin-top:8px">
+        <div class="field"><label>年齢</label><input id="age" type="number" min="18" max="60" placeholder="例：31"></div>
+        <div class="field"><label>顔（自己評価・偏差値 45–70）</label><input id="face" type="number" min="45" max="70" placeholder="例：56"></div>
+        <div class="field"><label>身長（cm）</label><input id="height" type="number" min="140" max="210" placeholder="例：164"></div>
+        <div class="field"><label>体重（kg）</label><input id="weight" type="number" min="35" max="200" placeholder="例：62"></div>
+        <div class="field"><label>年収（万円）</label><input id="income" type="number" min="100" max="3000" step="10" placeholder="例：700"></div>
+        <div class="field"><label>金融資産（万円・概算）</label><input id="asset" type="number" min="0" max="10000" step="10" placeholder="例：300"></div>
+        <div class="field"><label>職業カテゴリ</label>
+          <select id="job"><option value="it_saas">IT/SaaS・企画/PM/データ</option><option value="consult">コンサル/外資/金融フロント</option><option value="finance_bk">金融バック/事務</option><option value="maker">メーカー/製造</option><option value="infra">インフラ/建設/交通</option><option value="public">公務/行政/教育</option><option value="medical">医療/看護/薬/臨床</option><option value="creative">デザイン/編集/制作</option><option value="retail">小売/飲食/サービス</option><option value="other">その他</option></select>
+        </div>
+        <div class="field"><label>学歴（単一ラベル）</label>
+          <select id="edu"><option value="elite_nat">旧帝大</option><option value="elite_pri">早慶上智</option><option value="gmarch">GMARCH</option><option value="kankand">関関同立</option><option value="nitokom">日東駒専</option><option value="sankin">産近甲龍</option><option value="localpub">地方国公立</option><option value="voc">短大・専門</option><option value="hs">高卒</option><option value="intl">海外大</option></select>
+        </div>
+        <div class="field"><label>交際人数（人）</label><input id="rel" type="number" min="0" max="100" placeholder="例：3"></div>
+        <div class="field"><label>性経験人数（人）</label><input id="sex" type="number" min="0" max="200" placeholder="例：2"></div>
+        <div class="field"><label>婚姻歴</label><select id="mar"><option value="never">未婚</option><option value="div">離婚</option><option value="wid">死別</option></select></div>
+        <div class="field"><label>子ども</label><select id="kids"><option value="none">いない</option><option value="have_custody">いる（同居/親権あり）</option><option value="have_no">いる（同居なし）</option></select></div>
+        <div class="field"><label>出身地</label><select id="home"><option value="metro">首都圏/大都市</option><option value="core">政令市/地方中核</option><option value="local">地方/郊外</option><option value="overseas">海外</option></select></div>
+      </div>
+
+      <details style="margin-top:6px">
+        <summary>任意：カメラで顔の簡易推定（端末内処理・保存なし）</summary>
+        <div class="cam">
+          <video id="v" playsinline muted></video>
+          <div style="display:flex;gap:8px;flex-wrap:wrap;justify-content:center">
+            <button class="btn ghost" id="camStart" type="button">起動</button>
+            <button class="btn" id="camShot" type="button">推定→顔欄に入力</button>
+            <button class="btn ghost" id="camStop" type="button">停止</button>
+          </div>
+          <small class="help">FaceDetector対応時のみ。照明/角度/表情で数点ブレます。</small>
+        </div>
+      </details>
+
+      <div style="display:flex;gap:10px;justify-content:center;margin-top:10px">
+        <button class="btn" id="goPref">相手のスペックへ</button>
+        <button class="btn ghost" id="back0">戻る</button>
+      </div>
+    </div>
+  </section>
+
+  <!-- PREFERENCE -->
+  <section id="s2" class="screen">
+    <div class="card">
+      <div class="badge">STEP 2</div>
+      <h2>相手に求めるスペック（重視のみ入力）</h2>
+      <div class="help">チェックした項目だけ評価に反映。未チェックは“重視しない”。</div><hr>
+      <div class="formgrid3">
+        <div class="field"><div class="checkrow"><input type="checkbox" id="p_age_on"><label for="p_age_on">年齢</label></div><div class="formgrid2"><input id="p_age_min" type="number" min="18" max="70" placeholder="最小"><input id="p_age_max" type="number" min="18" max="70" placeholder="最大"></div></div>
+        <div class="field"><div class="checkrow"><input type="checkbox" id="p_face_on"><label for="p_face_on">顔（偏差値下限）</label></div><input id="p_face_min" type="number" min="45" max="72" placeholder="例：60"><select id="p_face_style"><option value="">系統なし</option><option value="kireime">綺麗め</option><option value="babyface">童顔</option><option value="natural">ナチュラル</option><option value="wild">ワイルド</option></select></div>
+        <div class="field"><div class="checkrow"><input type="checkbox" id="p_h_on"><label for="p_h_on">身長（cm）</label></div><div class="formgrid2"><input id="p_h_min" type="number" min="140" max="210" placeholder="最小"><input id="p_h_max" type="number" min="140" max="210" placeholder="最大"></div></div>
+        <div class="field"><div class="checkrow"><input type="checkbox" id="p_w_on"><label for="p_w_on">体重（kg）</label></div><div class="formgrid2"><input id="p_w_min" type="number" min="35" max="200" placeholder="最小"><input id="p_w_max" type="number" min="35" max="200" placeholder="最大"></div></div>
+        <div class="field"><div class="checkrow"><input type="checkbox" id="p_inc_on"><label for="p_inc_on">年収（万円）</label></div><div class="formgrid2"><input id="p_inc_min" type="number" min="100" max="3000" step="10" placeholder="最小"><input id="p_inc_max" type="number" min="100" max="3000" step="10" placeholder="最大"></div></div>
+        <div class="field"><div class="checkrow"><input type="checkbox" id="p_ast_on"><label for="p_ast_on">金融資産（万円・下限）</label></div><input id="p_ast_min" type="number" min="0" max="10000" step="10" placeholder="例：300"></div>
+        <div class="field"><div class="checkrow"><input type="checkbox" id="p_job_on"><label for="p_job_on">職業</label></div><select id="p_job"><option value="">指定なし</option><option value="it_saas">IT/SaaS・企画/PM/データ</option><option value="consult">コンサル/外資/金融フロント</option><option value="finance_bk">金融バック/事務</option><option value="maker">メーカー/製造</option><option value="infra">インフラ/建設/交通</option><option value="public">公務/行政/教育</option><option value="medical">医療/看護/薬</option><option value="creative">デザイン/編集/制作</option><option value="retail">小売/飲食/サービス</option><option value="other">その他</option></select></div>
+        <div class="field"><div class="checkrow"><input type="checkbox" id="p_edu_on"><label for="p_edu_on">学歴（単一ラベル）</label></div><select id="p_edu"><option value="">指定なし</option><option value="elite_nat">旧帝大</option><option value="elite_pri">早慶上智</option><option value="gmarch">GMARCH</option><option value="kankand">関関同立</option><option value="nitokom">日東駒専</option><option value="sankin">産近甲龍</option><option value="localpub">地方国公立</option><option value="voc">短大・専門</option><option value="hs">高卒</option><option value="intl">海外大</option></select></div>
+        <div class="field" id="p_bust_wrap"><div class="checkrow"><input type="checkbox" id="p_bust_on"><label for="p_bust_on">バスト（女性のみ）</label></div><input id="p_bust_min" type="text" placeholder="例：C以上"></div>
+        <div class="field"><div class="checkrow"><input type="checkbox" id="p_rel_on"><label for="p_rel_on">交際人数（上限）</label></div><input id="p_rel_max" type="number" min="0" max="100" placeholder="例：5"></div>
+        <div class="field"><div class="checkrow"><input type="checkbox" id="p_sex_on"><label for="p_sex_on">性経験人数（上限）</label></div><input id="p_sex_max" type="number" min="0" max="200" placeholder="例：3"></div>
+        <div class="field"><div class="checkrow"><input type="checkbox" id="p_mar_on"><label for="p_mar_on">婚姻歴（許容）</label></div><select id="p_mar"><option value="">指定なし</option><option value="never">未婚のみ</option><option value="allow_div">離婚も可</option><option value="allow_wid">死別も可</option><option value="allow_any">不問</option></select></div>
+        <div class="field"><div class="checkrow"><input type="checkbox" id="p_kid_on"><label for="p_kid_on">子ども（許容）</label></div><select id="p_kid"><option value="">指定なし</option><option value="none">いない</option><option value="allow_any">不問</option><option value="allow_no">同居なし可</option></select></div>
+        <div class="field"><div class="checkrow"><input type="checkbox" id="p_home_on"><label for="p_home_on">出身地</label></div><select id="p_home"><option value="">指定なし</option><option value="metro">首都圏/大都市</option><option value="core">政令市/地方中核</option><option value="local">地方/郊外</option><option value="overseas">海外</option></select></div>
+      </div>
+      <div style="display:flex;gap:10px;justify-content:center;margin-top:10px">
+        <button class="btn" id="goValues">結婚観 1問1答へ</button>
+        <button class="btn ghost" id="back1">戻る</button>
+      </div>
+    </div>
+  </section>
+
+  <!-- VALUES: 1問1答 -->
+  <section id="s2b" class="screen">
+    <div class="card qwrap">
+      <div class="qhead">
+        <span class="badge">STEP 3</span>
+        <span class="help" id="qpos">1 / 24</span>
+      </div>
+      <div class="meter"><i id="qbar" style="width:0%"></i></div>
+      <div class="qtext" id="qtext">—</div>
+      <div class="choices" id="qchoices"><!-- buttons injected --></div>
+      <div class="qnav">
+        <div class="left">
+          <button class="link" id="qback">← 1つ戻る</button>
+        </div>
+        <div class="right">
+          <button class="link" id="qskip">どちらでも（スキップ）→</button>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- RESULT -->
+  <section id="s3" class="screen">
+    <div class="card">
+      <div class="badge">診断結果</div>
+      <h2>婚活偏差値（μ50/σ10）× 期待難度 × 結婚観</h2>
+      <div class="grid2" style="margin-top:8px">
+        <div class="card-i">
+          <div style="display:flex;justify-content:space-between"><b>婚活偏差値（MMI）</b><b id="mmiVal">—</b></div>
+          <div class="meter"><i id="mmiBar"></i></div>
+          <div class="help" id="mmiNote"></div>
+        </div>
+        <div class="card-i">
+          <div style="display:flex;justify-content:space-between"><b>期待難度（条件の希少度）</b><b id="rareVal">—</b></div>
+          <div class="meter"><i id="rareBar"></i></div>
+          <div class="help">高いほど“母集団が希薄”。</div>
+        </div>
+        <div class="card-i">
+          <div style="display:flex;justify-content:space-between"><b>結婚観フリクション</b><b id="fricVal">—/20</b></div>
+          <div class="meter"><i id="fricBar"></i></div>
+          <div class="help" id="fricNote"></div>
+        </div>
+        <div class="card-i">
+          <div style="display:flex;justify-content:space-between"><b>総合判定</b><b id="judge">—</b></div>
+          <div class="help" id="judgeNote"></div>
+        </div>
+      </div>
+
+      <div class="kpi card-i" style="margin-top:10px">
+        <div class="mute">鍛えどころ（0–100）</div>
+        <div class="kpi-row"><div>見た目（清潔感/写真）</div><div class="kpi-bar"><i id="k_look"></i></div><div id="v_look">0</div></div>
+        <div class="kpi-row"><div>体型（BMI）</div><div class="kpi-bar"><i id="k_body"></i></div><div id="v_body">0</div></div>
+        <div class="kpi-row"><div>年収/職務の伸ばし方</div><div class="kpi-bar"><i id="k_inc"></i></div><div id="v_inc">0</div></div>
+        <div class="kpi-row"><div>資産/家計設計</div><div class="kpi-bar"><i id="k_ast"></i></div><div id="v_ast">0</div></div>
+        <div class="kpi-row"><div>条件の緩和余地</div><div class="kpi-bar"><i id="k_loosen"></i></div><div id="v_loosen">0</div></div>
+        <div class="kpi-row"><div>行動量（母集団×面談）</div><div class="kpi-bar"><i id="k_action"></i></div><div id="v_action">0</div></div>
+      </div>
+
+      <div class="card-i">
+        <b>時間軸プラン</b>
+        <div id="horizonTxt" class="help" style="margin-top:6px"></div>
+        <div id="tradeHints" class="pills" style="margin-top:8px"></div>
+      </div>
+
+      <div class="card-i">
+        <b>相手のペルソナ TOP3（スペック＋性格ストーリー）</b>
+        <div id="cards" class="cards" style="margin-top:8px"></div>
+      </div>
+
+      <div class="card-i">
+        <b>入力の要約</b>
+        <div id="summary" class="help"></div>
+        <div style="display:flex;gap:8px;flex-wrap:wrap;margin-top:8px">
+          <button class="copy" id="copy">結果をコピー</button>
+          <button class="btn ghost" id="again">もう一度</button>
+        </div>
+      </div>
+
+      <small class="help">※ 本結果は市場傾向の近似モデルに基づく“目安”。個人の尊厳と安全を最優先に。差別・嫌がらせ目的の利用は禁止です。</small>
+    </div>
+  </section>
+</div>
+
+<script>
+"use strict";
+
+/* ===== helpers ===== */
+const $=s=>document.querySelector(s);
+const el=(t,a={})=>Object.assign(document.createElement(t),a);
+const clamp=(x,a,b)=>Math.max(a,Math.min(b,x));
+
+/* ===== state ===== */
+const S={self:{},pref:{},values:[],vIndex:0,stream:null};
+const CALIB_N=2000;
+const CALIB_CACHE={male:null,female:null,other:null};
+
+/* ===== camera ===== */
+$("#camStart").addEventListener("click",async()=>{try{S.stream=await navigator.mediaDevices.getUserMedia({video:true,audio:false});$("#v").srcObject=S.stream;$("#v").play();}catch(e){alert("カメラを利用できません。");}});
+$("#camStop").addEventListener("click",()=>{if(S.stream){S.stream.getTracks().forEach(t=>t.stop());S.stream=null;}});
+$("#camShot").addEventListener("click",async()=>{
+  try{
+    const v=$("#v"); if(!v.videoWidth){alert("映像未取得です。");return;}
+    const c=document.createElement("canvas"); c.width=v.videoWidth; c.height=v.videoHeight;
+    const ctx=c.getContext("2d"); ctx.drawImage(v,0,0,c.width,c.height);
+    let est=55;
+    if("FaceDetector" in window){
+      const det=new FaceDetector({fastMode:true}); const faces=await det.detect(c);
+      if(faces&&faces[0]){const f=faces[0].boundingBox; const area=(f.width*f.height)/(c.width*c.height);
+        est+=Math.max(-4,Math.min(4,(area-0.12)*40));
+        const left=ctx.getImageData(0,0,c.width/2,c.height).data, right=ctx.getImageData(c.width/2,0,c.width/2,c.height).data;
+        const mean=d=>{let s=0,n=0;for(let i=0;i<d.length;i+=16){s+=(d[i]+d[i+1]+d[i+2])/3;n++;}return s/n;};
+        const sym=1-Math.abs(mean(left)-mean(right))/255; est+=Math.max(-3,Math.min(3,(sym-0.94)*60));
+      }
+    }
+    const img=ctx.getImageData(0,0,c.width,c.height).data; let s=0,s2=0,n=0;
+    for(let i=0;i<img.length;i+=16){const v=(img[i]+img[i+1]+img[i+2])/3; s+=v; s2+=v*v; n++;}
+    const mean=s/n, varc=(s2/n)-(mean*mean); if(mean<70) est-=2; if(mean>200) est-=1; if(varc<1200) est-=1;
+    est=Math.round(clamp(est,45,70)); $("#face").value=String(est); alert("推定: "+est);
+  }catch(e){alert("推定に失敗しました。");}
+});
+
+/* ===== routes ===== */
+$("#about").addEventListener("click",()=>alert("MMIは係数の対数加重和を性別別の擬似母集団で正規化（μ50/σ10）。男性30–32歳をピーク、170未満の身長は加速度的に減点。結婚観は1問1答でフリクションに反映。"));
+$("#goSelf").addEventListener("click",()=>show("#s1"));
+$("#back0").addEventListener("click",()=>show("#s0"));
+$("#back1").addEventListener("click",()=>show("#s1"));
+$("#again").addEventListener("click",()=>location.reload());
+function show(id){document.querySelectorAll(".screen").forEach(s=>s.classList.remove("active"));$(id).classList.add("active");window.scrollTo({top:0,behavior:"smooth"});}
+
+/* ===== collect ===== */
+function must(v){return v!==""&&v!=null&&!Number.isNaN(v);}
+function collectSelf(){
+  const sex=$("#selfSex").value;
+  const self={sex,targetSex:$("#targetSex").value,age:Number($("#age").value),face:Number($("#face").value),height:Number($("#height").value),
+    weight:Number($("#weight").value),income:Number($("#income").value),asset:Number($("#asset").value),job:$("#job").value,edu:$("#edu").value,
+    rel:Number($("#rel").value||0),sexN:Number($("#sex").value||0),mar:$("#mar").value,kids:$("#kids").value,home:$("#home").value};
+  const req=["age","face","height","weight","income","asset","job","edu","rel","sexN","mar","kids","home"];
+  for(const k of req){if(!must(self[k]))return{ok:false,msg:`未入力: ${k}`};}
+  if(self.age<18)return{ok:false,msg:"18歳以上のみ対象です。"};
+  return{ok:true,data:self};
+}
+function syncPrefBust(){ $("#p_bust_wrap").style.display=($("#targetSex").value==="women"||$("#targetSex").value==="any")? "block":"none"; }
+$("#goPref").addEventListener("click",()=>{const r=collectSelf(); if(!r.ok){alert(r.msg);return;} S.self=r.data; syncPrefBust(); show("#s2");});
+function valIf(on,fn){return $(on).checked?fn():null;}
+function collectPref(){
+  return {sex:$("#targetSex").value,
+    age:valIf("#p_age_on",()=>({min:Number($("#p_age_min").value),max:Number($("#p_age_max").value)})),
+    face:valIf("#p_face_on",()=>({min:Number($("#p_face_min").value),style:$("#p_face_style").value||null})),
+    height:valIf("#p_h_on",()=>({min:Number($("#p_h_min").value),max:Number($("#p_h_max").value)})),
+    weight:valIf("#p_w_on",()=>({min:Number($("#p_w_min").value),max:Number($("#p_w_max").value)})),
+    income:valIf("#p_inc_on",()=>({min:Number($("#p_inc_min").value),max:Number($("#p_inc_max").value)})),
+    asset:valIf("#p_ast_on",()=>({min:Number($("#p_ast_min").value)})),
+    job:valIf("#p_job_on",()=>$("#p_job").value||null),
+    edu:valIf("#p_edu_on",()=>$("#p_edu").value||null),
+    bust:($("#p_bust_wrap").style.display!=="none")? valIf("#p_bust_on",()=>({min:($("#p_bust_min").value||"")})) : null,
+    rel:valIf("#p_rel_on",()=>({max:Number($("#p_rel_max").value)})),
+    sexN:valIf("#p_sex_on",()=>({max:Number($("#p_sex_max").value)})),
+    mar:valIf("#p_mar_on",()=>$("#p_mar").value||null),
+    kids:valIf("#p_kid_on",()=>$("#p_kid").value||null),
+    home:valIf("#p_home_on",()=>$("#p_home").value||null)};
+}
+$("#goValues").addEventListener("click",()=>{
+  const r=collectSelf(); if(!r.ok){alert(r.msg);return;}
+  S.self=r.data; S.pref=collectPref();
+  startValues();
+  show("#s2b");
+});
+
+/* ===== 結婚観 1問1答 ===== */
+const VIEW_QUESTIONS=[
+  {id:"money_manage", text:"家計の管理はどうしたい？", choices:["完全別管理","やや別管理","併用（ハイブリッド）","やや共同","完全共同"], norm:2, w:1.5},
+  {id:"saving_rate",  text:"貯蓄率（手取り比）の目安は？", choices:["<5%","5–10%","10–20%","20–30%","30%+"], norm:2, w:1.2},
+  {id:"debt_tolerance", text:"消費ローン/リボへの姿勢は？", left:"許容", right:"基本NG", norm:3, w:1.0},
+  {id:"prenup",       text:"婚前契約（財産/離婚時の取り決め）は？", left:"不要", right:"必要", norm:2, w:1.0},
+  {id:"chores",       text:"家事分担の考え方は？", left:"担当制", right:"完全50/50", norm:3, w:1.5},
+  {id:"childcare",    text:"育児（平日/夜間含む）への参加は？", left:"最小限", right:"がっつり", norm:3, w:1.4},
+  {id:"kids_num",     text:"子どもの人数の希望は？", choices:["0","1","2","3","4+"], norm:2, w:1.4},
+  {id:"kids_when",    text:"出産/育児の開始時期は？", choices:["未定/5年以上","3–5年","1–3年","1年以内","すぐに"], norm:2, w:1.5},
+  {id:"career_focus", text:"相手のキャリア優先度は？", left:"家庭優先", right:"キャリア優先", norm:2, w:1.0},
+  {id:"relocate",     text:"転居/転勤の柔軟性は？", left:"固定", right:"柔軟に可", norm:2, w:1.2},
+  {id:"where_live",   text:"住む場所の嗜好は？", choices:["地方/郊外","やや郊外","どちらでも","やや都心","都心"], norm:2, w:1.0},
+  {id:"near_parents", text:"親の近居/同居について？", left:"近居/同居OK", right:"距離必要", norm:2, w:1.2},
+  {id:"inlaws_bound", text:"双方親との境界線は？", left:"ゆるい", right:"厳密", norm:3, w:1.2},
+  {id:"surname",      text:"姓の取り扱い（改姓/複合姓など）は？", left:"こだわらない", right:"強い希望あり", norm:2, w:0.8},
+  {id:"buy_house",    text:"住宅購入の時期は？", left:"買わない/未定", right:"早めに購入", norm:2, w:1.0},
+  {id:"loan_risk",    text:"住宅ローン/金利リスク許容は？", left:"許容", right:"低リスク志向", norm:2, w:1.0},
+  {id:"smoking_alc",  text:"喫煙/飲酒の許容は？", choices:["非常に寛容","やや寛容","中庸","やや厳しめ","厳しめ"], norm:2, w:1.0},
+  {id:"religion",     text:"宗教行事/信仰の重みは？", left:"重視", right:"重要でない", norm:2, w:1.0},
+  {id:"politics",     text:"政治観の一致はどの程度求める？", choices:["一致不要","近い方が良い","どちらでも","だいたい一致したい","一致を強く求める"], norm:2, w:0.8},
+  {id:"sex_freq",     text:"性生活の頻度の希望は？", choices:["月1以下","月2","週1","週2","週3+"], norm:2, w:0.8},
+  {id:"weekend_social", text:"週末の過ごし方（社交度）は？", left:"インドア", right:"アクティブ", norm:2, w:0.7},
+  {id:"travel",       text:"旅行の頻度/予算感は？", choices:["ほぼ行かない","年1","年2–3","年4–6","月1+"], norm:2, w:0.7},
+  {id:"work_hours",   text:"長時間労働（相手/自分）の容認は？", choices:["許容","やや許容","どちらでも","あまり許容しない","不可"], norm:2, w:1.0},
+  {id:"pets",         text:"ペットの有無/アレルギー対応は？", choices:["問題ない","やや許容","どちらでも","やや慎重","NG/慎重"], norm:2, w:0.8},
+];
+
+function choiceSet(q){
+  if(q.choices) return q.choices.map((label,i)=>({label, val:i}));
+  // 汎用（左右の強度）
+  const L=q.left||"左寄り", R=q.right||"右寄り";
+  return [
+    {label:`強く${L}`, val:0},
+    {label:`やや${L}`, val:1},
+    {label:`どちらでも`, val:2},
+    {label:`やや${R}`, val:3},
+    {label:`強く${R}`, val:4},
+  ];
+}
+
+function startValues(){
+  S.values = new Array(VIEW_QUESTIONS.length).fill(null);
+  S.vIndex = 0;
+  renderQ();
+}
+function renderQ(){
+  const i=S.vIndex, total=VIEW_QUESTIONS.length, q=VIEW_QUESTIONS[i];
+  $("#qpos").textContent = `${i+1} / ${total}`;
+  $("#qbar").style.width = ((i)/total*100)+"%";
+  $("#qtext").textContent = q.text;
+  const box=$("#qchoices"); box.innerHTML="";
+  const opts=choiceSet(q);
+  opts.forEach((o,idx)=>{
+    const b=el("button",{className:"choice",type:"button"});
+    b.innerHTML = `${o.label}${idx===2?'<small>（中庸）</small>':''}`;
+    if(S.values[i]===o.val) b.classList.add("selected");
+    b.addEventListener("click",()=>{ S.values[i]=o.val; nextQ(); });
+    box.appendChild(b);
+  });
+  $("#qback").disabled = (i===0);
+  $("#qskip").onclick = ()=>{ S.values[i]=q.norm; nextQ(); };
+}
+function nextQ(){
+  if(S.vIndex < VIEW_QUESTIONS.length-1){
+    S.vIndex++;
+    renderQ();
+  }else{
+    // 24問完了 → 診断実行
+    runResult();
+  }
+}
+$("#qback").addEventListener("click",()=>{ if(S.vIndex>0){ S.vIndex--; renderQ(); }});
+
+/* ===== scoring pieces（前回の厳しめ仕様を踏襲） ===== */
+const EDU_W={elite_nat:1.10,elite_pri:1.08,gmarch:1.05,kankand:1.05,localpub:1.04,nitokom:1.02,sankin:1.02,voc:0.98,hs:0.96,intl:1.05};
+const JOB_W={it_saas:1.06,consult:1.06,finance_bk:1.02,maker:1.00,infra:1.03,public:1.02,medical:1.03,creative:0.98,retail:0.96,other:1.00};
+function bmi(h,w){if(!h||!w)return null;const m=h/100;return w/(m*m);}
+function maleAgeCoef(age){const pts=[[20,0.90],[24,0.96],[28,1.02],[31,1.06],[32,1.06],[36,1.02],[40,0.98],[45,0.92],[50,0.86]];
+  if(age<=pts[0][0])return pts[0][1];
+  for(let i=1;i<pts.length;i++){if(age<=pts[i][0]){const [x0,y0]=pts[i-1],[x1,y1]=pts[i];return y0+(y1-y0)*(age-x0)/(x1-x0);}}
+  return 0.84;}
+function femaleAgeCoef(age){if(age<23) return 0.92 + (age-18)*0.01; if(age<=30) return 1.00 - Math.abs(age-26)*0.02;
+  if(age<=35) return 0.92 - (age-30)*0.03; if(age<=40) return 0.77 - (age-35)*0.035; return 0.56;}
+function ageCoef(age,sex){return sex==="female"? femaleAgeCoef(age) : maleAgeCoef(age);}
+function heightCoef(h,sex){
+  if(sex==="male"){ if(h>=183) return 1.08; if(h>=180) return 1.06; if(h>=177) return 1.03; if(h>=174) return 1.00; if(h>=171) return 0.96;
+    if(h>=169) return 0.92; if(h>=167) return 0.89; if(h>=165) return 0.86; if(h>=163) return 0.83; return 0.80; }
+  else if(sex==="female"){ if(h>=170) return 0.95; if(h>=168) return 0.98; if(h>=165) return 1.02; if(h>=160) return 1.05; if(h>=155) return 1.02; return 0.98; }
+  return 1.0;
+}
+function bmiCoef(v){if(v==null)return 1.0; if(v<18.5)return 0.98; if(v<22.5)return 1.04; if(v<25)return 1.02; if(v<28)return 0.98; return 0.94;}
+function incomeCoef(y,sex){ if(sex==="male"){ if(y<400)return 0.96; if(y<500)return 1.00; if(y<600)return 1.04; if(y<700)return 1.08; if(y<800)return 1.12; if(y<900)return 1.15; if(y<1000)return 1.18; if(y<1200)return 1.20; return 1.22; }
+  else{ if(y<300)return 0.96; if(y<400)return 0.99; if(y<500)return 1.00; if(y<600)return 1.03; if(y<800)return 1.08; if(y<1000)return 1.12; return 1.14; } }
+function assetCoef(a){ if(a<=50)return 0.96; if(a<=300)return 1.00; if(a<=800)return 1.05; return 1.10; }
+function expCoef(rel,sexN){let r=1.0; if(rel===0)r*=0.97; if(rel>=1&&rel<=6)r*=1.02; if(rel>10)r*=0.98; if(sexN===0)r*=0.98; if(sexN>=1&&sexN<=6)r*=1.01; if(sexN>15)r*=0.97; return r;}
+function marKidsCoef(mar,kids){let c=1.0; if(mar==="div")c*=0.96; if(mar==="wid")c*=0.97; if(kids==="have_custody")c*=0.92; if(kids==="have_no")c*=0.95; return c;}
+function homeCoef(hm){return ({metro:1.05,core:1.02,local:0.98,overseas:1.00})[hm]||1.0;}
+function faceCoef(face,sex){const norm=(face-55); const k=(sex==="female")?0.018:0.012; const c=1+k*norm; return clamp(c,(sex==="female")?0.92:0.90,(sex==="female")?1.22:1.16);}
+const W_male   ={ac:1.0,hc:1.7,bc:0.8,ic:1.3,as:1.0,ec:1.1,jc:1.0,xc:0.7,mc:0.8,hm:0.6,fc:0.9};
+const W_female ={ac:1.3,hc:0.7,bc:1.3,ic:0.8,as:0.8,ec:0.9,jc:0.9,xc:0.7,mc:0.8,hm:0.6,fc:1.5};
+function W(sex){return sex==="female"? W_female : W_male;}
+
+function factors(self){
+  const ac=ageCoef(self.age,self.sex), hc=heightCoef(self.height,self.sex), bc=bmiCoef(bmi(self.height,self.weight));
+  const ic=incomeCoef(self.income,self.sex), as=assetCoef(self.asset), ec=(EDU_W[self.edu]||1.0), jc=(JOB_W[self.job]||1.0);
+  const xc=expCoef(self.rel,self.sexN), mc=marKidsCoef(self.mar,self.kids), hm=homeCoef(self.home), fc=faceCoef(self.face,self.sex);
+  return {ac,hc,bc,ic,as,ec,jc,xc,mc,hm,fc};
+}
+function logWeightedSum(self){
+  const f=factors(self), w=W(self.sex);
+  const g = Math.log(f.ac)*w.ac + Math.log(f.hc)*w.hc + Math.log(f.bc)*w.bc + Math.log(f.ic)*w.ic + Math.log(f.as)*w.as +
+            Math.log(f.ec)*w.ec + Math.log(f.jc)*w.jc + Math.log(f.xc)*w.xc + Math.log(f.mc)*w.mc + Math.log(f.hm)*w.hm +
+            Math.log(f.fc)*w.fc;
+  return {g,f};
+}
+function weightedPick(map){ const r=Math.random(); let acc=0; for(const k in map){acc+=map[k]; if(r<=acc) return k;} return Object.keys(map)[0]; }
+function gauss(){let u=0,v=0; while(u===0)u=Math.random(); while(v===0)v=Math.random(); return Math.sqrt(-2.0*Math.log(u))*Math.cos(2*Math.PI*v);}
+function sampleSexSpecific(sex){
+  const s={sex};
+  if(sex==="female"){
+    s.age=clamp(Math.round(26+gauss()*5),20,45);
+    s.height=clamp(Math.round(158+gauss()*6),148,172);
+    const b=clamp(22+gauss()*3,17,30), h=s.height/100; s.weight=Math.round(b*h*h);
+    s.income=Math.round(Math.exp(Math.log(380)+gauss()*0.28)); s.income=clamp(s.income,200,900);
+    s.asset=Math.round(Math.exp(Math.log(250)+gauss()*0.55)); s.asset=clamp(s.asset,20,1500);
+    s.edu=weightedPick({elite_nat:0.02,elite_pri:0.04,gmarch:0.08,kankand:0.08,localpub:0.20,nitokom:0.22,sankin:0.14,voc:0.10,hs:0.11,intl:0.01});
+    s.job=weightedPick({it_saas:0.12,consult:0.04,finance_bk:0.10,maker:0.16,infra:0.10,public:0.14,medical:0.12,creative:0.10,retail:0.10,other:0.02});
+    s.rel=Math.max(0,Math.round(gauss()*2+3)); s.sexN=Math.max(0,Math.round(gauss()*2+3));
+    s.mar=weightedPick({never:0.85,div:0.13,wid:0.02}); s.kids=weightedPick({none:0.85,have_custody:0.08,have_no:0.07});
+    s.home=weightedPick({metro:0.45,core:0.25,local:0.28,overseas:0.02});
+    s.face=clamp(Math.round(55+gauss()*5),45,70);
+  }else{
+    s.age=clamp(Math.round(31+gauss()*6),22,50);
+    s.height=clamp(Math.round(171+gauss()*6.5),160,186);
+    const b=clamp(23+gauss()*3,18,32), h=s.height/100; s.weight=Math.round(b*h*h);
+    s.income=Math.round(Math.exp(Math.log(550)+gauss()*0.35)); s.income=clamp(s.income,250,1200);
+    s.asset=Math.round(Math.exp(Math.log(300)+gauss()*0.55)); s.asset=clamp(s.asset,20,2000);
+    s.edu=weightedPick({elite_nat:0.03,elite_pri:0.05,gmarch:0.08,kankand:0.08,localpub:0.18,nitokom:0.20,sankin:0.15,voc:0.10,hs:0.12,intl:0.01});
+    s.job=weightedPick({it_saas:0.12,consult:0.06,finance_bk:0.08,maker:0.20,infra:0.12,public:0.12,medical:0.08,creative:0.08,retail:0.10,other:0.04});
+    s.rel=Math.max(0,Math.round(gauss()*2+3)); s.sexN=Math.max(0,Math.round(gauss()*2+3));
+    s.mar=weightedPick({never:0.88,div:0.10,wid:0.02}); s.kids=weightedPick({none:0.90,have_custody:0.05,have_no:0.05});
+    s.home=weightedPick({metro:0.45,core:0.25,local:0.28,overseas:0.02});
+    s.face=clamp(Math.round(55+gauss()*5),45,70);
+  }
+  return s;
+}
+function calibrate(sex){
+  if(CALIB_CACHE[sex]) return CALIB_CACHE[sex];
+  let sum=0,sum2=0;
+  for(let i=0;i<CALIB_N;i++){ const s=sampleSexSpecific(sex==="other"?"male":sex); const {g}=logWeightedSum(s); sum+=g; sum2+=g*g; }
+  const mu=sum/CALIB_N; const varc=(sum2/CALIB_N)-mu*mu; const sigma=Math.sqrt(Math.max(varc,1e-6));
+  const out={mu,sigma}; CALIB_CACHE[sex]=out; return out;
+}
+function calcMMI(self){
+  const {g,f}=logWeightedSum(self);
+  const {mu,sigma}=calibrate(self.sex);
+  let mmi=Math.round(50 + 10*((g - mu)/sigma));
+  mmi=clamp(mmi,20,85);
+  return {mmi,parts:f,mu,sigma,raw:g};
+}
+
+/* 希少度＋フリクション */
+function rarityFromPref(pref,self){
+  let r=45; const add=x=>r+=x;
+  if(pref.age){const w=Math.max(1,(pref.age.max-pref.age.min)); add(w<=3?9:w<=6?6:w<=10?3:1);
+    if(self.sex==="male"&&pref.age.max<self.age) add(4);
+    if(self.sex==="female"&&pref.age.min>self.age) add(5);}
+  if(pref.face){add((pref.face.min-55)*1.2); if(pref.face.style) add(3);}
+  if(pref.height){const span=pref.height.max-pref.height.min; add(span<=5?6:span<=10?3:1);
+    if(self.sex==="female"&&(pref.height.min||0)>=175) add(4);
+    if(self.sex==="male"&&(pref.height.max||999)<=160) add(2);}
+  if(pref.weight){const span=pref.weight.max-pref.weight.min; add(span<=5?5:span<=10?3:1);}
+  if(pref.income){const c=pref.income.min||0; add(c>=800?10:c>=600?6:c>=500?4:c>=400?2:0);}
+  if(pref.asset){const a=pref.asset.min||0; add(a>=800?6:a>=300?3:0);}
+  if(pref.job&&pref.job!=="") add(({consult:6,it_saas:6,infra:3,public:2,medical:3,finance_bk:2,creative:2,retail:1,other:1,maker:2}[pref.job]||2));
+  if(pref.edu&&pref.edu!=="") add(({elite_nat:8,elite_pri:7,gmarch:5,kankand:5,localpub:4,nitokom:3,sankin:3,voc:1,hs:1,intl:4}[pref.edu]||3));
+  if(pref.bust) add(5);
+  if(pref.rel) add(pref.rel.max<=1?8:pref.rel.max<=3?5:pref.rel.max<=5?3:1);
+  if(pref.sexN) add(pref.sexN.max<=1?10:pref.sexN.max<=3?7:pref.sexN.max<=5?4:1);
+  if(pref.mar) add(pref.mar==="never"?4:0);
+  if(pref.kids) add(pref.kids==="none"?3:0);
+  if(pref.home) add(pref.home==="metro"?2:1);
+  return clamp(Math.round(r),35,85);
+}
+function collectValues(){ // 1問1答の配列 → 計算用形式へ
+  return VIEW_QUESTIONS.map((q,i)=>({id:q.id,val:(S.values[i]??q.norm),w:q.w,norm:q.norm}));
+}
+function frictionFromValues(vals){
+  const totalW=vals.reduce((s,o)=>s+o.w,0);
+  const dist=vals.reduce((s,o)=>s+o.w*Math.abs(o.val-o.norm),0);
+  const frac=dist/(totalW*2); // 穏やかめ
+  const points=clamp(Math.round(frac*20),0,20);
+  const tops=vals.map(o=>({id:o.id,delta:Math.abs(o.val-o.norm),w:o.w})).sort((a,b)=>(b.delta*b.w)-(a.delta*a.w)).slice(0,3).map(o=>o.id);
+  return {points,tops};
+}
+
+/* KPI/Plan（据え置き） */
+function trainKPI(self,pref,mmi,target){
+  const m=self.height/100, b=(self.weight? self.weight/(m*m):22);
+  const look=Math.round(clamp(70-self.face,0,25)*3.5);
+  const body=Math.round(clamp(Math.abs(b-22)*6,0,30)*3.0);
+  const inc =Math.round(clamp((self.sex==="male"?800:600)-self.income,0,800)/8);
+  const ast=Math.round(clamp(500-self.asset,0,800)/8);
+  const loosen=Math.round(clamp(target-mmi,0,35)*3.0);
+  const act=50; return {look,body,inc,ast,loosen,act};
+}
+function planHorizon(self,mmi,rare,fric){
+  let months=24 - clamp((mmi-50),-25,25)*0.4 + clamp((rare-50),-20,35)*0.5 + fric*0.6;
+  if(self.sex==="female"&&self.age>=30) months+=(self.age-30)*1.3;
+  months=clamp(Math.round(months),6,48);
+  const txt=(months<=12)?"〜6〜12か月：質を落とさずテンポ良く。":(months<=24)?"〜12〜24か月：条件1〜2点緩和＋行動固定化。":"〜24〜48か月：自己投資と条件再設計を並走。";
+  const hints=[]; const add=t=>hints.push(t);
+  if(S.pref.face) add("顔偏差値 −3（写真の最適化＋清潔感）");
+  if(S.pref.height&&(S.pref.height.max-S.pref.height.min)<=5) add("身長幅 +5cm");
+  if(S.pref.income) add("年収幅 +100万円（上下いずれか）");
+  if(S.pref.edu&&(S.pref.edu==="elite_nat"||S.pref.edu==="elite_pri")) add("学歴：難関→主要私大/地方国公立");
+  if(S.pref.age&&(S.pref.age.max-S.pref.age.min)<=3) add("年齢幅 +2年");
+  return {months,txt,hints};
+}
+
+/* Persona（簡略） */
+const EDU_LABEL={elite_nat:"旧帝大",elite_pri:"早慶上智",gmarch:"GMARCH",kankand:"関関同立",nitokom:"日東駒専",sankin:"産近甲龍",localpub:"地方国公立",voc:"短大・専門",hs:"高卒",intl:"海外大"};
+const JOB_LABEL={it_saas:"IT/SaaS・企画/PM/データ",consult:"コンサル/外資/金融",finance_bk:"金融バック/事務",maker:"メーカー/製造",infra:"インフラ/建設/交通",public:"公務/行政/教育",medical:"医療/看護/薬",creative:"デザイン/編集/制作",retail:"小売/飲食/サービス",other:"その他"};
+function baseIncomeBy(sex,age){if(sex==="men"){if(age<=25)return Math.round((280+(age-20)*20)/10)*10; if(age<=30)return Math.round((380+(age-25)*24)/10)*10; if(age<=35)return Math.round((500+(age-30)*12)/10)*10; if(age<=40)return Math.round((560+(age-35)*10)/10)*10; return Math.round((610+(age-40)*4)/10)*10;} if(sex==="women"){if(age<=25)return Math.round((240+(age-20)*16)/10)*10; if(age<=30)return Math.round((320+(age-25)*14)/10)*10; if(age<=35)return Math.round((390+(age-30)*10)/10)*10; if(age<=40)return Math.round((440+(age-35)*4)/10)*10; return Math.round((460+(age-40)*2)/10)*10;} return Math.round((150+10*age)/10)*10;}
+function baseHeightBy(sex){return (sex==="men")?171:(sex==="women")?158:165;}
+function band3y(c){return {min:Math.max(18,c-1),max:Math.min(70,c+1)};}
+function band5cm(c){return {min:Math.max(140,Math.round(c-2)),max:Math.min(210,Math.round(c+2))};}
+function bandInc(c){return {min:Math.max(200,c-100),max:Math.min(2000,c+100)};}
+function faceCapBy(mmi,rare){const reach=mmi-(rare-50);if(reach<0)return 59;if(reach<5)return 63;if(reach<12)return 68;return 72;}
+function faceValue(minReq,cap){let f=Math.max(minReq||50,52); f=Math.min(f,cap); return {f,style:(f>=60?"綺麗め":"ナチュラル")};}
+function story(seed,values){
+  const pick=(arr,k)=>arr[(seed+k)%arr.length];
+  const moods=["現実的","穏やか","丁寧","前向き","即断型","対話重視"];
+  const seats=["喫茶店","公園ベンチ","昼カフェ","美術館前","川沿い散歩","静かな日本酒"];
+  const topics=["家事の見える化","お金の透明性","親との距離","健康習慣","旅行計画","住む場所の優先度"];
+  const kids=values.find(v=>v.id==="kids_num")?.val, chores=values.find(v=>v.id==="chores")?.val, money=values.find(v=>v.id==="money_manage")?.val;
+  const kidsLine=(kids>=3?"子ども前向き":kids<=1?"子どもは慎重":"子どもは対話で決める");
+  const choresLine=(chores>=3?"家事は50/50志向":chores<=1?"担当制で安定":"柔軟に分担");
+  const moneyLine=(money>=3?"共同家計で透明に":money<=1?"別管理派":"家計はハイブリッド");
+  return `${pick(moods,seed)}に進めるタイプ。初回は${pick(seats,seed+1)}で、${pick(topics,seed+2)}から。${kidsLine}、${choresLine}、${moneyLine}。`;
+}
+function personaTop3(self,pref,mmi,rare,values){
+  const target=(pref.sex==="men")?"men":(pref.sex==="women")?"women":"any";
+  const list=[
+    {id:"urban_dual",title:(target==="men"?"都市デュアル男子":"都市デュアル女子"),tag:"大都市×双方キャリア",job:"it_saas",edu:"gmarch",adj:{age:0,inc:+60,h:+2}},
+    {id:"rural_stable",title:(target==="men"?"地方堅実男子":"地方堅実女子"),tag:"地方/中核×安定",job:"maker",edu:"localpub",adj:{age:+1,inc:-20,h:0}},
+    {id:"joint_ops",title:(target==="men"?"共同運営男子":"共同運営女子"),tag:"家事/家計透明化",job:"public",edu:"kankand",adj:{age:0,inc:+20,h:0}},
+    {id:"wellness",title:(target==="men"?"ウェルネス男子":"ウェルネス女子"),tag:"生活整い×境界スマート",job:"medical",edu:"localpub",adj:{age:0,inc:0,h:0}},
+    {id:"pro_special",title:(target==="men"?"専門職ハイキャリア男":"専門職ハイキャリア女"),tag:"士業/研究/専門",job:"consult",edu:"elite_pri",adj:{age:+1,inc:+120,h:0}},
+    {id:"steady_core",title:(target==="men"?"安定基盤男子":"安定基盤女子"),tag:"実直運営",job:"infra",edu:"localpub",adj:{age:+1,inc:+40,h:0}},
+    {id:"startup",title:(target==="men"?"スタートアップ男":"スタートアップ女"),tag:"成長志向×変化耐性",job:"it_saas",edu:"gmarch",adj:{age:-1,inc:+80,h:+1}},
+    {id:"remote",title:(target==="men"?"リモート・ノマド男":"リモート・ノマド女"),tag:"場所の自由",job:"it_saas",edu:"kankand",adj:{age:0,inc:0,h:0}},
+    {id:"gov_infra",title:(target==="men"?"公務・インフラ男":"公務・インフラ女"),tag:"制度×安定",job:"public",edu:"localpub",adj:{age:+1,inc:+30,h:0}},
+    {id:"creative",title:(target==="men"?"探究クリエイティブ男":"探究クリエイティブ女"),tag:"新しい体験",job:"creative",edu:"nitokom",adj:{age:-1,inc:-10,h:0}},
+    {id:"edu_med",title:(target==="men"?"教育・医療男":"教育・医療女"),tag:"公共性と安定",job:"medical",edu:"localpub",adj:{age:0,inc:-10,h:0}},
+    {id:"empathy",title:(target==="men"?"共感合意男子":"共感合意女子"),tag:"対話で進める",job:"finance_bk",edu:"gmarch",adj:{age:0,inc:+30,h:0}},
+  ];
+  const cap=faceCapBy(mmi,rare), hBase=baseHeightBy(target==="men"?"men":"women"), ageBase=self.age+(target==="men"?+1:-1);
+  return list.map((p,i)=>{
+    const ageC=ageBase+p.adj.age, incC=baseIncomeBy(target==="men"?"men":"women",clamp(ageC,20,45))+p.adj.inc, hC=hBase+p.adj.h;
+    const fmin=(S.pref.face&&S.pref.face.min)?S.pref.face.min:52, f=faceValue(fmin,cap);
+    let rel=0; if(S.pref.edu&&S.pref.edu===p.edu) rel+=8; if(S.pref.job&&S.pref.job===p.job) rel+=8;
+    if(S.pref.income&&incC>=S.pref.income.min) rel+=5; if(S.pref.height&&hC>=S.pref.height.min&&hC<=S.pref.height.max) rel+=4;
+    if(S.pref.age&&ageC>=S.pref.age.min&&ageC<=S.pref.age.max) rel+=4;
+    const score=0.6*(mmi/100)+0.2*((80-rare)/80)+0.2*(rel/25);
+    return {id:p.id,title:p.title,tag:p.tag,score,
+      spec:{年齢:`${band3y(Math.round(ageC)).min}〜${band3y(Math.round(ageC)).max}歳`,学歴:EDU_LABEL[p.edu]||EDU_LABEL["localpub"],職業:JOB_LABEL[p.job],
+            年収:`${bandInc(Math.round(incC)).min}〜${bandInc(Math.round(incC)).max}万円`,身長:`${band5cm(Math.round(hC)).min}〜${band5cm(Math.round(hC)).max}cm`,
+            顔:`偏差値 ${f.f}（${f.style}）`,体型:(S.pref.weight?`目安BMI ${Math.round(((S.pref.weight.min+S.pref.weight.max)/2)/((hC/100)**2))}`:"標準〜スリム"),
+            価値観:(p.id==="joint_ops"?"家事の見える化・合意形成":p.id==="wellness"?"睡眠/運動/食を整える":p.id==="empathy"?"対話で調整":"誠実・実直")},
+      story:story(self.age*37+i*11, collectValues())};
+  }).sort((a,b)=>b.score-a.score).slice(0,3);
+}
+
+/* labels for friction note */
+const LABELS={money_manage:"家計管理",saving_rate:"貯蓄率",debt_tolerance:"借金許容",prenup:"婚前契約",chores:"家事分担",childcare:"育児参加",
+  kids_num:"子ども数",kids_when:"時期",career_focus:"相手のキャリア",relocate:"転居柔軟性",where_live:"住む場所",near_parents:"近居/同居",
+  inlaws_bound:"親との境界",surname:"姓の扱い",buy_house:"住宅購入",loan_risk:"ローン許容",smoking_alc:"喫煙/飲酒",religion:"宗教",politics:"政治観の一致",
+  sex_freq:"性生活頻度",weekend_social:"休日の社交",travel:"旅行",work_hours:"長時間労働",pets:"ペット"};
+
+/* ===== run result ===== */
+function runResult(){
+  // 1) MMI
+  const {mmi,parts,mu,sigma}=calcMMI(S.self);
+  $("#mmiVal").textContent=mmi; $("#mmiBar").style.width=clamp((mmi-20)/65*100,0,100)+"%";
+  $("#mmiNote").innerHTML=`年齢:${parts.ac.toFixed(2)} / <b>身長:${parts.hc.toFixed(2)}</b> / BMI:${parts.bc.toFixed(2)} / 収入:${parts.ic.toFixed(2)} / 学歴:${parts.ec.toFixed(2)} / 顔:${parts.fc.toFixed(2)}（μ=${mu.toFixed(3)}, σ=${sigma.toFixed(3)})`;
+
+  // 2) 希少度
+  const rare=rarityFromPref(S.pref,S.self);
+  $("#rareVal").textContent=rare; $("#rareBar").style.width=clamp((rare-35)/50*100,0,100)+"%";
+
+  // 3) 結婚観フリクション
+  const vals=collectValues(); const fr=frictionFromValues(vals);
+  $("#fricVal").textContent=`${fr.points}/20`; $("#fricBar").style.width=(fr.points/20*100)+"%";
+  $("#fricNote").textContent=fr.points>0?`ズレ大：${fr.tops.map(id=>LABELS[id]).join(" / ")}`:"大きなズレはありません。";
+
+  // 4) 判定
+  const target=rare+fr.points; const gap=mmi-target;
+  let judge="",note="";
+  if(gap>=8){judge="低望み（条件を上げても可）";note="控えめ設定。少し上を狙っても成立しやすい。";}
+  else if(gap>=-5){judge="妥当";note="現実的な範囲。量と質の両輪で押していく。";}
+  else if(gap>=-15){judge="やや高望み";note="母集団が薄め。条件1〜2点の見直し＋自己改善を。";}
+  else{judge="高望み（当たりにくい）";note="条件の緩和＋自己改善（見た目/体型/収入）の同時進行を。";}
+  $("#judge").textContent=judge; $("#judgeNote").textContent=note;
+
+  // 5) KPI
+  const k=trainKPI(S.self,S.pref,mmi,target);
+  const setK=(id,val,vid)=>{ $(id).style.width=clamp(val,0,100)+"%"; $(vid).textContent=Math.round(clamp(val,0,100)); };
+  setK("#k_look",k.look,"#v_look"); setK("#k_body",k.body,"#v_body"); setK("#k_inc",k.inc,"#v_inc");
+  setK("#k_ast",k.ast,"#v_ast"); setK("#k_loosen",k.loosen,"#v_loosen"); setK("#k_action",k.act,"#v_action");
+
+  // 6) Plan
+  const plan=planHorizon(S.self, mmi, rare, fr.points);
+  $("#horizonTxt").innerHTML=`目安：<b>${plan.months}か月</b>。${plan.txt}`+((S.self.sex==="female"&&S.self.age>=30)?' <span class="attn">※30代女性は時間の価値が大きく、短期可達性を優先。</span>':"");
+  const th=$("#tradeHints"); th.innerHTML=""; plan.hints.forEach(h=>{ const s=el("span",{className:"pill"}); s.textContent=h; th.appendChild(s); });
+
+  // 7) Persona
+  const cards=personaTop3(S.self,S.pref,mmi,rare,vals);
+  const box=$("#cards"); box.innerHTML="";
+  cards.forEach(c=>{
+    const ci=el("div",{className:"card-i"}); const head=el("div",{innerHTML:`<b>${c.title}</b>　<span class="help">${c.tag}</span>`});
+    const ul=el("ul",{}); ul.style.margin="6px 0 0 18px"; Object.entries(c.spec).forEach(([k,v])=>{const li=el("li",{}); li.innerHTML=`<b>${k}：</b> ${v}`; ul.appendChild(li);});
+    const st=el("div",{className:"help",textContent:c.story}); ci.appendChild(head); ci.appendChild(ul); ci.appendChild(st); box.appendChild(ci);
+  });
+
+  // 8) Summary + copy
+  const P=S.pref, items=[]; if(P.age)items.push(`年齢${P.age.min}〜${P.age.max}`); if(P.face)items.push(`顔${P.face.min}${P.face.style? "（"+P.face.style+"）":""}`);
+  if(P.height)items.push(`身長${P.height.min}〜${P.height.max}`); if(P.weight)items.push(`体重${P.weight.min}〜${P.weight.max}`);
+  if(P.income)items.push(`年収${P.income.min}〜${P.income.max}`); if(P.asset)items.push(`資産${P.asset.min}+`); if(P.job)items.push(`職:${JOB_LABEL[P.job]}`);
+  if(P.edu)items.push(`学歴:${EDU_LABEL[P.edu]}`); if(P.bust)items.push(`バスト:${P.bust.min}+`); if(P.rel)items.push(`交際<=${P.rel.max}`); if(P.sexN)items.push(`経験<=${P.sexN.max}`);
+  if(P.mar)items.push(`婚歴:${({never:"未婚のみ",allow_div:"離婚可",allow_wid:"死別可",allow_any:"不問"})[P.mar]}`); if(P.kids)items.push(`子:${({none:"いない",allow_any:"不問",allow_no:"同居なし可"})[P.kids]}`);
+  if(P.home)items.push(`出身:${({metro:"大都市",core:"中核",local:"地方",overseas:"海外"})[P.home]}`);
+  $("#summary").textContent=`相手条件（重視したもの）：${items.join(" / ")||"なし（柔軟）"}`;
+
+  $("#copy").onclick=async()=>{try{
+    const txt=[
+      "【婚活診断Pro｜μ50/σ10・1問1答】",
+      `MMI:${mmi} / 希少度:${rare} / フリクション:${fr.points} / 判定:${$("#judge").textContent}`,
+      `時間軸: 約${plan.months}か月`,
+      `あなた: ${S.self.age}歳, 顔${S.self.face}, ${S.self.height}cm ${S.self.weight}kg, 年収${S.self.income}万, 資産${S.self.asset}万, ${EDU_LABEL[S.self.edu]}, ${JOB_LABEL[S.self.job]}`,
+      `重視条件: ${items.join(" / ")||"なし（柔軟）"}`
+    ].join("\n");
+    await navigator.clipboard.writeText(txt); alert("コピーしました。");
+  }catch(e){prompt("コピーできない場合はこちらを選択してコピー","婚活診断結果");}};
+  show("#s3");
+}
+
+/* ===== init ===== */
+function init(){ /* no-op */ }
+init();
+</script>
+</body>
+</html>
